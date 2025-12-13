@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Malla Psicología UdelaR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 16px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .malla {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .materia {
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid #ccc;
+      transition: 0.2s;
+    }
+    .materia.aprobada {
+      background: #c8e6c9;
+      border-color: #4caf50;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Malla Psicología – UdelaR</h1>
+<p>Tocá una materia para marcarla como aprobada.</p>
+
+<div class="malla">
+  <div class="materia" onclick="toggle(this)">Introducción a la Psicología</div>
+  <div class="materia" onclick="toggle(this)">Psicología del Desarrollo</div>
+  <div class="materia" onclick="toggle(this)">Psicología Social</div>
+  <div class="materia" onclick="toggle(this)">Metodología de la Investigación</div>
+</div>
+
+<script>
+  function toggle(el) {
+    el.classList.toggle("aprobada");
+  }
+</script>
+
+</body>
+</html>
