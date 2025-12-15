@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Malla Psicología UdelaR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Malla Curricular – Psicología UdelaR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,39 +11,153 @@
       margin: 0;
       padding: 16px;
     }
+
     h1 {
       text-align: center;
+      margin-bottom: 4px;
     }
-    .malla {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
-    }
-    .materia {
-      background: white;
-      border-radius: 8px;
-      padding: 10px;
+
+    h2 {
       text-align: center;
-      cursor: pointer;
-      border: 2px solid #ccc;
-      transition: 0.2s;
+      margin-top: 0;
+      font-weight: normal;
+      color: #555;
     }
+
+    .ciclo {
+      margin-top: 32px;
+    }
+
+    .ciclo-titulo {
+      text-align: center;
+      font-size: 1.2em;
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+
+    .semestres {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .semestre {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .semestre h3 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .modulo {
+      margin-bottom: 10px;
+    }
+
+    .modulo h4 {
+      margin: 6px 0;
+      font-size: 0.95em;
+      color: #333;
+    }
+
+    .materia {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 6px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      font-size: 0.85em;
+    }
+
     .materia.aprobada {
       background: #c8e6c9;
       border-color: #4caf50;
+    }
+
+    .creditos {
+      font-size: 0.75em;
+      color: #555;
     }
   </style>
 </head>
 <body>
 
-<h1>Malla Psicología – UdelaR</h1>
-<p>Tocá una materia para marcarla como aprobada.</p>
+<h1>Malla Curricular – Facultad de Psicología</h1>
+<h2>Universidad de la República · Plan 2013</h2>
+<p style="text-align:center">Tocá una materia para marcarla como aprobada.</p>
 
-<div class="malla">
-  <div class="materia" onclick="toggle(this)">Introducción a la Psicología</div>
-  <div class="materia" onclick="toggle(this)">Psicología del Desarrollo</div>
-  <div class="materia" onclick="toggle(this)">Psicología Social</div>
-  <div class="materia" onclick="toggle(this)">Metodología de la Investigación</div>
+<!-- CICLO INICIAL -->
+<div class="ciclo">
+  <div class="ciclo-titulo">Ciclo Inicial</div>
+  <div class="semestres">
+
+    <!-- 1er Semestre -->
+    <div class="semestre">
+      <h3>1er Semestre</h3>
+
+      <div class="modulo">
+        <h4>Módulo de Psicología</h4>
+        <div class="materia" onclick="toggle(this)">Historia de la Psicología <span class="creditos">(10 cred)</span></div>
+        <div class="materia" onclick="toggle(this)">Neurobiología de la Mente <span class="creditos">(5 cred)</span></div>
+        <div class="materia" onclick="toggle(this)">Fundamentos de la Psicología <span class="creditos">(5 cred)</span></div>
+      </div>
+
+      <div class="modulo">
+        <h4>Módulo Metodológico</h4>
+        <div class="materia" onclick="toggle(this)">Epistemología <span class="creditos">(5 cred)</span></div>
+        <div class="materia" onclick="toggle(this)">Herramientas para el Trabajo Intelectual <span class="creditos">(5 cred)</span></div>
+      </div>
+
+      <div class="modulo">
+        <h4>Módulo Articulación de Saberes</h4>
+        <div class="materia" onclick="toggle(this)">Articulación de Saberes I <span class="creditos">(5 cred)</span></div>
+      </div>
+
+      <div class="modulo">
+        <h4>Módulo Referencial</h4>
+        <div class="materia" onclick="toggle(this)">Inicio a la Formación en Psicología <span class="creditos">(5 cred)</span></div>
+      </div>
+    </div>
+
+    <!-- 2do Semestre -->
+    <div class="semestre">
+      <h3>2do Semestre</h3>
+
+      <div class="modulo">
+        <h4>Módulo de Psicología</h4>
+        <div class="materia" onclick="toggle(this)">Psicología del Desarrollo <span class="creditos">(10 cred)</span></div>
+        <div class="materia" onclick="toggle(this)">Procesos Cognitivos <span class="creditos">(5 cred)</span></div>
+        <div class="materia" onclick="toggle(this)">Teorías Psicológicas <span class="creditos">(5 cred)</span></div>
+      </div>
+
+      <div class="modulo">
+        <h4>Módulo Metodológico</h4>
+        <div class="materia" onclick="toggle(this)">Métodos y herramientas orientadas a la extensión <span class="creditos">(2 cred)</span></div>
+        <div class="materia" onclick="toggle(this)">Metodología General de la Investigación <span class="creditos">(5 cred)</span></div>
+      </div>
+
+      <div class="modulo">
+        <h4>Módulo Prácticas y Proyectos</h4>
+        <div class="materia" onclick="toggle(this)">Entrevista Psicológica <span class="creditos">(5 cred)</span></div>
+      </div>
+
+      <div class="modulo">
+        <h4>Módulo Articulación de Saberes</h4>
+        <div class="materia" onclick="toggle(this)">Articulación de Saberes II <span class="creditos">(5 cred)</span></div>
+      </div>
+
+      <div class="modulo">
+        <h4>Módulo Referencial</h4>
+        <div class="materia" onclick="toggle(this)">Formación Integral <span class="creditos">(5 cred)</span></div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script>
