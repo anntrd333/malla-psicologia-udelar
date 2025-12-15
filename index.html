@@ -1,432 +1,463 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Malla Psicología - Interactiva (versión local)</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Malla Psicología · Interactiva</title>
   <style>
     :root{
-      --pink: #f7d6e0; /* pastel rosa */
-      --pink-strong: #efb6cf;
-      --gray-block: #a9a9a9; /* gris claro medio-oscuro */
-      --bg: #fffafc;
-      --text: #222;
-      --muted: #666;
-      --cell-padding: 6px;
-      --module-width: 210px;
-      --totals-width: 170px;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      font-size: 12px;
+      --bg: #fff7fb;
+      --pink: #ffd6e8; /* pastel rosa (desbloqueada) */
+      --pink-strong: #ffb3d1;
+      --locked: #cfcfcf; /* gris claro-medio oscuro */
+      --approved: #9e9e9e; /* gris aprobado */
+      --text: #2b2b2b;
+      --muted: #6b6b6b;
+      --card-radius: 8px;
+      --gap: 6px;
+      --font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
-    .wrap{max-width:1400px;margin:12px auto;padding:12px;box-sizing:border-box}
-    h1{margin:6px 0 4px;font-size:18px;text-align:center}
-    p.lead{margin:0 0 12px;text-align:center;color:var(--muted)}
+    html,body{height:100%;margin:0;background:var(--bg);font-family:var(--font-family);color:var(--text)}
+    .wrap{padding:10px;box-sizing:border-box}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    h1{font-size:18px;margin:0}
+    p.lead{margin:0;font-size:13px;color:var(--muted)}
 
-    /* tabla tipo malla */
-    .malla {display:grid;grid-template-columns: var(--module-width) repeat(8, 1fr) var(--totals-width);gap:6px;align-items:start;}
+    /* grid: first col modules, then 8 semestre cols, then total col */
+    .grid{
+      display:grid;
+      grid-template-columns:200px repeat(8, minmax(130px,1fr)) 220px;
+      gap:8px;
+      align-items:start;
+      width:100%;
+    }
 
-    /* encabezados de ciclo (span 2 columnas) */
-    .cycle{background:#fdeef6;border-radius:8px;padding:8px;text-align:center;font-weight:700}
-    .cycle.full{background:linear-gradient(90deg,#fdeef6, #fbe7f0)}
+    /* cycle header that spans two semester columns */
+    .cycle-header{
+      grid-column: span 2;
+      background:transparent;
+      text-align:center;
+      padding:6px 4px;
+      font-weight:700;
+      border-radius:6px;
+      color:var(--muted);
+      font-size:13px;
+    }
 
-    .semester{background:#fff;border-radius:6px;padding:6px;text-align:center;font-weight:700;border:1px solid #f0dbe2}
+    .col-head{background:transparent;text-align:center;padding:6px 4px;font-weight:700;color:var(--muted);font-size:13px}
 
-    .module-name{background:transparent;padding:8px 6px;font-weight:700;color:var(--muted);display:flex;align-items:center;height:32px}
+    .module-name{background:transparent;padding:6px 8px;font-weight:700;color:var(--muted);font-size:13px}
 
-    .cell{background:transparent;padding:4px;min-height:40px}
-    .cell .materia{display:block;margin:4px 0;padding:6px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .semester-cell{
+      min-height:48px;
+      background:transparent;
+      padding:6px;
+      border-radius:6px;
+      display:flex;flex-direction:column;gap:6px;
+    }
 
-    .materia.locked{background:#efefef;color:var(--muted);border-color:#e0e0e0;cursor:not-allowed}
-    .materia.available{background:var(--pink);border-color:var(--pink-strong)}
-    .materia.approved{background:var(--gray-block);border-color:var(--gray-block);text-decoration:line-through;color:#333}
+    .course{
+      padding:6px 8px;
+      border-radius:6px;
+      background:var(--pink);
+      box-shadow:0 1px 0 rgba(0,0,0,0.03);
+      font-size:12px;
+      cursor:pointer;
+      border:1px solid rgba(0,0,0,0.04);
+      display:flex;justify-content:space-between;align-items:center;
+      gap:8px;
+    }
+    .course.locked{background:var(--locked);cursor:default;color:#444}
+    .course.approved{background:var(--approved);text-decoration:line-through;color:#fff}
+    .course .name{flex:1;text-align:left}
+    .course .cred{font-size:11px;color:var(--muted);margin-left:6px}
 
-    /* module rows labels vertical center */
-    .module-label{display:flex;align-items:center;height:100%;padding-left:6px}
+    .totals-col{padding:6px}
+    .total-box{background:white;border-radius:8px;padding:8px;font-size:12px}
+    .total-row{display:flex;justify-content:space-between;padding:6px 4px;border-bottom:1px dashed #eee}
+    .total-row:last-child{border-bottom:none}
 
-    /* totals column */
-    .totals{background:#fff;border-radius:8px;padding:8px;border:1px solid #f0dbe2}
-    .totals h3{margin:4px 0;font-size:13px}
-    .totals .line{font-size:12px;margin:6px 0;color:var(--muted)}
+    /* make everything compact to try to fit on screen */
+    body,html{font-size:13px}
 
-    /* compact adjustments so everything fits on one page */
-    body{overscroll-behavior:none}
-    .malla{font-size:12px}
-    .materia{font-size:12px;padding:5px}
+    /* small tooltip/details panel */
+    .details{
+      position:fixed;right:12px;bottom:12px;background:white;padding:10px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.12);width:260px;font-size:13px;z-index:40;
+    }
+    .details h4{margin:0 0 6px 0;font-size:13px}
+    .details small{color:var(--muted)}
 
-    /* small screens: scale down to fit width */
-    @media (max-width:1200px){
-      .wrap{padding:8px}
-      :root{--module-width:170px;--totals-width:140px}
+    /* make page non-scrollable but allow internal scroll if needed */
+    html,body,.wrap{height:100%}
+    .container{height:calc(100% - 70px);overflow:auto;padding-right:6px}
+
+    /* responsive: shrink columns on small screens */
+    @media (max-width:1100px){
+      .grid{grid-template-columns:160px repeat(8, minmax(100px,1fr)) 180px}
+    }
+    @media (max-width:900px){
+      .grid{grid-template-columns:120px repeat(8, minmax(80px,1fr)) 160px}
+      .details{display:none}
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Malla Curricular - Facultad de Psicología (Plan 2013)</h1>
-    <p class="lead">Toca una materia para marcarla como aprobada. Las materias bloqueadas aparecen en gris. Las materias aprobadas quedan tachadas y en gris. Los créditos por módulo se suman a la derecha.</p>
-
-    <div class="malla" id="malla">
-      <!-- Row 0: ciclo headers (module column empty) -->
-      <div style="grid-column:1/2"></div>
-      <div class="cycle" style="grid-column:2/4">Ciclo Inicial</div>
-      <div class="cycle" style="grid-column:4/6">Ciclo Inicial</div>
-      <div class="cycle" style="grid-column:6/10">Ciclo de Formación Integral</div>
-      <div class="cycle" style="grid-column:10/12">Ciclo de Graduación</div>
-      <div style="grid-column:12/13"></div>
-
-      <!-- Row 1: semester headers -->
-      <div class="module-name">Módulos / Semestres</div>
-      <div class="semester">1er semestre</div>
-      <div class="semester">2do semestre</div>
-      <div class="semester">3er semestre</div>
-      <div class="semester">4to semestre</div>
-      <div class="semester">5to semestre</div>
-      <div class="semester">6to semestre</div>
-      <div class="semester">7mo semestre</div>
-      <div class="semester">8vo semestre</div>
-      <div class="semester">&nbsp;</div>
-
-      <!-- Module: Módulo de Psicología row -->
-      <div class="module-label">Módulo de Psicología</div>
-      <div class="cell" id="cell_historia"></div>
-      <div class="cell" id="cell_psicodesarrollo"></div>
-      <div class="cell" id="cell_psicosocial"></div>
-      <div class="cell" id="cell_clinicaI"></div>
-      <div class="cell" id="cell_psicopatologia_nyad"></div>
-      <div class="cell" id="cell_problematicas"></div>
-      <div class="cell" id="cell_opt_psico7"></div>
-      <div class="cell" id="cell_opt_psico8"></div>
-      <div class="totals" id="totals_psic">
-        <h3>Módulo Psicología</h3>
-        <div class="line" id="sum_psic">0 / 145 créditos</div>
+    <header>
+      <div>
+        <h1>Malla Curricular · Psicología (Plan 2013)</h1>
+        <p class="lead">Tonos rosa pastel. Clic para aprobar / deshacer. Mat. bloqueadas por créditos/previaturas.</p>
       </div>
-
-      <!-- Module: Módulo Metodológico row -->
-      <div class="module-label">Módulo Metodológico</div>
-      <div class="cell" id="cell_neurobio"></div>
-      <div class="cell" id="cell_procesoscognitivos"></div>
-      <div class="cell" id="cell_etica"></div>
-      <div class="cell" id="cell_herr_clinica"></div>
-      <div class="cell" id="cell_clinicaII"></div>
-      <div class="cell" id="cell_dispositivos"></div>
-      <div class="cell" id="cell_opt_met7"></div>
-      <div class="cell" id="cell_opt_met8"></div>
-      <div class="totals" id="totals_met">
-        <h3>Módulo Metodológico</h3>
-        <div class="line" id="sum_met">0 / 60 créditos</div>
+      <div style="text-align:right;font-size:13px;color:var(--muted)">
+        Créditos totales: <strong>320</strong>
       </div>
+    </header>
 
-      <!-- Module: Módulo Prácticas y Proyectos row -->
-      <div class="module-label">Módulo Prácticas y Proyectos</div>
-      <div class="cell" id="cell_empty_pp1"> </div>
-      <div class="cell" id="cell_entrevista"></div>
-      <div class="cell" id="cell_empty_pp3"></div>
-      <div class="cell" id="cell_diseno_proyecto"></div>
-      <div class="cell" id="cell_proyectos_5"></div>
-      <div class="cell" id="cell_proyectos_6"></div>
-      <div class="cell" id="cell_proyectos_7"></div>
-      <div class="cell" id="cell_proyectos_8"></div>
-      <div class="totals" id="totals_pp">
-        <h3>Módulo Prácticas y Proyectos</h3>
-        <div class="line" id="sum_pp">0 / 50 créditos</div>
+    <div class="container">
+      <div class="grid" id="grid">
+        <!-- column headers will be rendered by JS -->
       </div>
+    </div>
 
-      <!-- Module: Módulo Articulación de Saberes row -->
-      <div class="module-label">Módulo Articulación de Saberes</div>
-      <div class="cell" id="cell_art1"></div>
-      <div class="cell" id="cell_art2"></div>
-      <div class="cell" id="cell_art3"></div>
-      <div class="cell" id="cell_art4"></div>
-      <div class="cell" id="cell_art5"></div>
-      <div class="cell" id="cell_art6"></div>
-      <div class="cell" id="cell_art_opt7"></div>
-      <div class="cell" id="cell_art_opt8"></div>
-      <div class="totals" id="totals_art">
-        <h3>Módulo Articulación</h3>
-        <div class="line" id="sum_art">0 / 40 créditos</div>
-      </div>
+    <div style="margin-top:8px;font-size:12px;color:var(--muted)">Nota: las reglas de desbloqueo están basadas en los requisitos que me mandaste. Si hay algún detalle ("examen" vs "curso"), lo trato como equivalente para que la lógica funcione en la malla; si querés lo ajustamos. El estado se guarda localmente en este navegador.</div>
+  </div>
 
-      <!-- Module: Módulo Referencial row -->
-      <div class="module-label">Módulo Referencial</div>
-      <div class="cell" id="cell_inicioform"></div>
-      <div class="cell" id="cell_formacion_integral"></div>
-      <div class="cell" id="cell_empty_ref3"></div>
-      <div class="cell" id="cell_empty_ref4"></div>
-      <div class="cell" id="cell_construccion_itinerario5"></div>
-      <div class="cell" id="cell_construccion_itinerario6"></div>
-      <div class="cell" id="cell_referencial7"></div>
-      <div class="cell" id="cell_referencial8"></div>
-      <div class="totals" id="totals_ref">
-        <h3>Módulo Referencial</h3>
-        <div class="line" id="sum_ref">0 / 20 créditos</div>
-      </div>
-
-      <!-- Module: Sin módulo (no mostrar nombre) -->
-      <div class="module-label">&nbsp;</div>
-      <div class="cell" id="cell_cooperacion"></div>
-      <div class="cell" id="cell_empty_sm2"></div>
-      <div class="cell" id="cell_empty_sm3"></div>
-      <div class="cell" id="cell_empty_sm4"></div>
-      <div class="cell" id="cell_empty_sm5"></div>
-      <div class="cell" id="cell_empty_sm6"></div>
-      <div class="cell" id="cell_empty_sm7"></div>
-      <div class="cell" id="cell_empty_sm8"></div>
-      <div class="totals" id="totals_sm">
-        <h3>Sin módulo</h3>
-        <div class="line" id="sum_sm">0 / 5 créditos</div>
-      </div>
-
-      <!-- Final overall totals row (spans) -->
-      <div style="grid-column:1/13"></div>
-      <div class="totals" style="grid-column:13/14; margin-top:6px">
-        <h3>Créditos Totales</h3>
-        <div class="line" id="sum_total">0 / 320 créditos</div>
-        <div style="font-size:11px;margin-top:8px;color:var(--muted)">Suma por módulo a la izquierda. Las materias desbloquean/ bloquean según créditos y requisitos.</div>
-      </div>
-
+  <div class="details" id="details" style="display:none">
+    <h4 id="dname">Nombre materia</h4>
+    <div id="ddesc"></div>
+    <div style="margin-top:8px;font-size:12px;color:var(--muted)" id="dpr">Previaturas: -</div>
+    <div style="margin-top:8px;display:flex;gap:6px;justify-content:space-between">
+      <button id="dToggle" style="padding:6px;border-radius:8px;border:1px solid #eee;background:var(--pink)">Aprobar / Deshacer</button>
+      <button id="dClose" style="padding:6px;border-radius:8px;border:1px solid #eee;background:white">Cerrar</button>
     </div>
   </div>
 
   <script>
-    // Datos de materias: id, nombre, creditos, modulo, semestres (1-8), prereqs (array of ids)
-    const materias = [
-      // 1er semestre
-      {id:'hist_psic',name:'Historia de la Psicología',credits:10,module:'psic',sems:[1],prereqs:[]},
-      {id:'neurobiologia',name:'Neurobiología de la Mente',credits:5,module:'met',sems:[1],prereqs:[]},
-      {id:'fund_psic',name:'Fundamentos de la Psicología',credits:5,module:'psic',sems:[1],prereqs:[]},
-      {id:'epistemologia',name:'Epistemología',credits:5,module:'met',sems:[1],prereqs:[]},
-      {id:'herr_trabajo',name:'Herramientas para el Trabajo Intelectual',credits:5,module:'met',sems:[1],prereqs:[]},
-      {id:'art1',name:'Articulación de Saberes I',credits:5,module:'art',sems:[1],prereqs:[]},
-      {id:'inicio_form',name:'Inicio a la Formación en Psicología',credits:5,module:'ref',sems:[1],prereqs:[]},
-      // 2do semestre
-      {id:'psic_desarrollo',name:'Psicología del Desarrollo',credits:10,module:'psic',sems:[2],prereqs:[]},
-      {id:'procesos_cogn',name:'Procesos Cognitivos',credits:5,module:'psic',sems:[2],prereqs:[]},
-      {id:'teorias_psic',name:'Teorías Psicológicas',credits:5,module:'psic',sems:[2],prereqs:[]},
-      {id:'methods_ext',name:'Métodos y herramientas orientadas a la extensión',credits:2,module:'met',sems:[2],prereqs:[]},
-      {id:'metodologia_gen',name:'Metodología General de la Investigación',credits:5,module:'met',sems:[2],prereqs:[]},
-      {id:'entrevista',name:'Entrevista Psicológica',credits:5,module:'pp',sems:[2],prereqs:[]},
-      {id:'art2',name:'Articulación de Saberes II',credits:5,module:'art',sems:[2],prereqs:[]},
-      {id:'formacion_integral',name:'Formación Integral',credits:5,module:'ref',sems:[2],prereqs:[]},
-      // 3er semestre (subject to credit-based unlock rule)
-      {id:'psic_social',name:'Psicología Social',credits:10,module:'psic',sems:[3],prereqs:[]},
-      {id:'psic_suj_apr',name:'Psicología, Sujeto y Aprendizaje',credits:5,module:'psic',sems:[3],prereqs:[]},
-      {id:'etica',name:'Ética y Deontología',credits:3,module:'met',sems:[3],prereqs:[]},
-      {id:'metod_cual',name:'Métodos y Técnicas cualitativa',credits:5,module:'met',sems:[3],prereqs:[]},
-      {id:'art3',name:'Articulación de Saberes III',credits:5,module:'art',sems:[3],prereqs:[]},
-      // 4to semestre (UCOs with prerequisites)
-      {id:'clinicaI',name:'Clínica I: Fundamentos psicoanalíticos',credits:5,module:'psic',sems:[4],prereqs:['art3','teorias_psic','fund_psic','etica','epistemologia']},
-      {id:'psic_salud',name:'Psicología y Salud',credits:10,module:'psic',sems:[4],prereqs:['psic_desarrollo','fund_psic','art2']},
-      {id:'herr_clinica',name:'Herramientas de la Psicología Clínica',credits:5,module:'met',sems:[4],prereqs:['entrevista','inicio_form','art3','teorias_psic','fund_psic']},
-      {id:'metod_cuant',name:'Métodos y Técnicas cuantitativa',credits:5,module:'met',sems:[4],prereqs:[]},
-      {id:'herr_psicosocial',name:'Herramientas de la Psicología Social',credits:5,module:'met',sems:[4],prereqs:['psic_social','teorias_psic','fund_psic','art1']},
-      {id:'diseno_proy',name:'Diseño de Proyectos',credits:5,module:'pp',sems:[4],prereqs:['metodologia_gen','epistemologia','metod_cuant']},
-      {id:'art4',name:'Articulación de Saberes IV',credits:5,module:'art',sems:[4],prereqs:['psic_social','art1','teorias_psic','fund_psic','art2']},
-      // 5to semestre
-      {id:'psicopat_ninos',name:'Psicopatología de niños y adolescentes',credits:5,module:'psic',sems:[5],prereqs:['entrevista','inicio_form','clinicaI','art3','teorias_psic','fund_psic']},
-      {id:'psicopat_adultos',name:'Psicopatología de adultos',credits:5,module:'psic',sems:[5],prereqs:['entrevista','inicio_form','clinicaI','art3','teorias_psic','fund_psic']},
-      {id:'neuropsicologia',name:'Neuropsicología',credits:5,module:'psic',sems:[5],prereqs:['procesos_cogn','neurobiologia']},
-      {id:'clinicaII',name:'Clínica II: Teorías y Técnicas de las Intervenciones',credits:5,module:'met',sems:[5],prereqs:['herr_clinica','entrevista','inicio_form','clinicaI','art3','teorias_psic','fund_psic']},
-      {id:'proyectos_5',name:'Proyectos (5to)',credits:10,module:'pp',sems:[5],prereqs:['design_optional_flag']},
-      {id:'practica_integral_5',name:'Práctica de Ciclo Formación Integral (puede 5to o 6to)',credits:10,module:'pp',sems:[5],prereqs:['ciclo_inicial_complete']},
-      {id:'art5',name:'Articulación de Saberes V',credits:5,module:'art',sems:[5],prereqs:['herr_psicosocial','psic_social','teorias_psic','fund_psic','art1','art4','art2']},
-      {id:'constr_itin_5',name:'Construcción de itinerario',credits:5,module:'ref',sems:[5],prereqs:['psic_social','art1','teorias_psic','fund_psic','psic_suj_apr','procesos_cogn','neurobiologia','psic_desarrollo','clinicaI','art3','etica','epistemologia','psic_salud','art2']},
-      // 6to semestre
-      {id:'prob_contmp',name:'Problemáticas contemporáneas de la psicología Social',credits:5,module:'psic',sems:[6],prereqs:['psic_social','art1','teorias_psic','fund_psic','art5','art4','art2']},
-      {id:'psic_y_educ',name:'Psicología y Educación',credits:5,module:'psic',sems:[6],prereqs:['psic_suj_apr','procesos_cogn','neurobiologia','psic_desarrollo','fund_psic']},
-      {id:'dispositivos_psic',name:'Dispositivos Psicoterapéuticos',credits:5,module:'met',sems:[6],prereqs:['clinicaII','herr_clinica','entrevista','inicio_form','clinicaI','art3','teorias_psic','fund_psic','etica','epistemologia']},
-      {id:'proyectos_6',name:'Proyectos (6to)',credits:10,module:'pp',sems:[6],prereqs:['ciclo_inicial_complete','diseno_proy']},
-      {id:'practica_integral_6',name:'Práctica de Ciclo Formación Integral (puede 5to o 6to)',credits:10,module:'pp',sems:[6],prereqs:['ciclo_inicial_complete','etica','psic_salud','psic_suj_apr','clinicaI','art3','herr_clinica','herr_psicosocial','psic_social']},
-      {id:'art6',name:'Articulación de Saberes VI',credits:5,module:'art',sems:[6],prereqs:['art1','art2','art3','teorias_psic','fund_psic']},
-      {id:'constr_itin_6',name:'Construcción de itinerario (6to alternativa)',credits:5,module:'ref',sems:[6],prereqs:['psic_social','art1','teorias_psic','fund_psic','psic_suj_apr','procesos_cogn','neurobiologia','psic_desarrollo','clinicaI','art3','etica','epistemologia','psic_salud','art2']},
-      // 7mo semestre
-      {id:'opt_psico_7',name:'Optativas (psicología) 7mo',credits:5,module:'psic',sems:[7],prereqs:['ciclo_inicial_complete','etica']},
-      {id:'opt_met_7',name:'Optativas (metodológico) 7mo',credits:5,module:'met',sems:[7],prereqs:['ciclo_inicial_complete','etica']},
-      {id:'idioma_7',name:'Idioma: Inglés o Portugués',credits:5,module:'met',sems:[7],prereqs:['ciclo_inicial_complete']},
-      {id:'proyectos_7',name:'Proyectos (7mo)',credits:10,module:'pp',sems:[7],prereqs:['design_optional_flag']},
-      {id:'practica_grad_7',name:'Práctica de Graduación (puede 7mo u 8vo)',credits:20,module:'pp',sems:[7],prereqs:['practica_integral_5']},
-      {id:'art_opt_7',name:'Optativas (Articulación) 7mo',credits:5,module:'art',sems:[7],prereqs:['ciclo_inicial_complete','etica']},
-      {id:'refer_egreso_7',name:'Referencial de egreso (7mo)',credits:5,module:'ref',sems:[7],prereqs:['ciclo_inicial_complete','ciclo_integral_complete','pp_20credits']},
-      // 8vo semestre
-      {id:'opt_psico_8',name:'Optativas (psicología) 8vo',credits:5,module:'psic',sems:[8],prereqs:['ciclo_inicial_complete']},
-      {id:'trabajo_final',name:'Trabajo final (40 cred)',credits:40,module:'psic',sems:[8],prereqs:['ciclo_inicial_complete','ciclo_integral_complete','pp_20credits']},
-      {id:'opt_met_8',name:'Optativas (metodológico) 8vo',credits:5,module:'met',sems:[8],prereqs:['ciclo_inicial_complete']},
-      {id:'proyectos_8',name:'Proyectos (8vo)',credits:10,module:'pp',sems:[8],prereqs:['design_optional_flag']},
-      {id:'practica_grad_8',name:'Práctica de Graduación (puede 7mo u 8vo)',credits:20,module:'pp',sems:[8],prereqs:['practica_integral_5']},
-      {id:'art_opt_8',name:'Optativas (Articulación) 8vo',credits:5,module:'art',sems:[8],prereqs:['ciclo_inicial_complete']},
-      {id:'refer_egreso_8',name:'Referencial de egreso (8vo)',credits:5,module:'ref',sems:[8],prereqs:['ciclo_inicial_complete','ciclo_integral_complete','pp_20credits']},
-      // Sin módulo
-      {id:'cooperacion',name:'Cooperación Institucional (u optativa)',credits:5,module:'sin',sems:[1],prereqs:[]}
+    // ---------- DATA: cursos (tomados tal cual del texto que me pasaste) ----------
+    const courses = [
+      /* Semestre 1 */
+      {id:'historia', name:'Historia de la Psicología', credits:10, module:'Psicología', sem:1, prereqs:[]},
+      {id:'neurobiologia', name:'Neurobiología de la Mente', credits:5, module:'Psicología', sem:1, prereqs:[]},
+      {id:'fundamentos', name:'Fundamentos de la Psicología', credits:5, module:'Psicología', sem:1, prereqs:[]},
+      {id:'epistemologia', name:'Epistemología', credits:5, module:'Metodológico', sem:1, prereqs:[]},
+      {id:'herramientasTI', name:'Herramientas para el Trabajo Intelectual', credits:5, module:'Metodológico', sem:1, prereqs:[]},
+      {id:'articulacion1', name:'Articulación de Saberes I: Construcción del sujeto y del objeto en Psicología', credits:5, module:'Articulación', sem:1, prereqs:[]},
+      {id:'inicioForm', name:'Inicio a la Formación en Psicología', credits:5, module:'Referencial', sem:1, prereqs:[]},
+
+      /* Semestre 2 */
+      {id:'desarrollo', name:'Psicología del Desarrollo', credits:10, module:'Psicología', sem:2, prereqs:[]},
+      {id:'procesos', name:'Procesos Cognitivos', credits:5, module:'Psicología', sem:2, prereqs:[]},
+      {id:'teorias', name:'Teorías Psicológicas', credits:5, module:'Psicología', sem:2, prereqs:[]},
+      {id:'metodosExt', name:'Métodos y herramientas orientadas a la extensión', credits:2, module:'Metodológico', sem:2, prereqs:[]},
+      {id:'metodologia', name:'Metodología General de la Investigación', credits:5, module:'Metodológico', sem:2, prereqs:[]},
+      {id:'entrevista', name:'Entrevista Psicológica', credits:5, module:'Prácticas', sem:2, prereqs:[]},
+      {id:'articulacion2', name:'Articulación de Saberes II: Psicología, Género y Derechos Humanos', credits:5, module:'Articulación', sem:2, prereqs:[]},
+      {id:'formacionIntegral', name:'Formación Integral', credits:5, module:'Referencial', sem:2, prereqs:[]},
+
+      /* Semestre 3 */
+      {id:'psicosocial', name:'Psicología Social', credits:10, module:'Psicología', sem:3, prereqs:[]},
+      {id:'sujetoAprendizaje', name:'Psicología, Sujeto y Aprendizaje', credits:5, module:'Psicología', sem:3, prereqs:[]},
+      {id:'etica', name:'Ética y Deontología', credits:3, module:'Metodológico', sem:3, prereqs:[]},
+      {id:'metodosCual', name:'Métodos y Técnicas cualitativa', credits:5, module:'Metodológico', sem:3, prereqs:[]},
+      {id:'articulacion3', name:'Articulación de Saberes III: Clínica y Subjetividad', credits:5, module:'Articulación', sem:3, prereqs:[]},
+
+      /* Semestre 4 */
+      {id:'clinica1', name:'Clínica I: Fundamentos psicoanalíticos', credits:5, module:'Psicología', sem:4, prereqs:['articulacion3','teorias','fundamentos','etica','epistemologia']},
+      {id:'psicologysalud', name:'Psicología y Salud', credits:10, module:'Psicología', sem:4, prereqs:['desarrollo','fundamentos','articulacion2']},
+      {id:'herrClin', name:'Herramientas de la Psicología Clínica', credits:5, module:'Metodológico', sem:4, prereqs:['entrevista','inicioForm','articulacion3','teorias','fundamentos']},
+      {id:'metodosCuant', name:'Métodos y Técnicas cuantitativa', credits:5, module:'Metodológico', sem:4, prereqs:['herramientasTI','metodologia','epistemologia']},
+      {id:'herrSocial', name:'Herramientas de la Psicología Social', credits:5, module:'Metodológico', sem:4, prereqs:['psicosocial','teorias','fundamentos','articulacion1']},
+      {id:'diseno', name:'Diseño de Proyectos', credits:5, module:'Prácticas', sem:4, prereqs:['metodologia','epistemologia','metodosCuant','herramientasTI']},
+      {id:'articulacion4', name:'Articulación de Saberes IV: Estado, sociedad y políticas públicas', credits:5, module:'Articulación', sem:4, prereqs:['psicosocial','articulacion1','teorias','fundamentos','articulacion2']},
+
+      /* Semestre 5 */
+      {id:'psicopInf', name:'Psicopatología de niños y adolescentes', credits:5, module:'Psicología', sem:5, prereqs:['entrevista','inicioForm','clinica1','articulacion3','teorias','fundamentos']},
+      {id:'psicopAdult', name:'Psicopatología de adultos', credits:5, module:'Psicología', sem:5, prereqs:['entrevista','inicioForm','clinica1','articulacion3','teorias','fundamentos']},
+      {id:'neuropsico', name:'Neuropsicología', credits:5, module:'Psicología', sem:5, prereqs:['procesos','neurobiologia']},
+      {id:'clinica2', name:'Clínica II: Teorías y Técnicas de las Intervenciones', credits:5, module:'Metodológico', sem:5, prereqs:['herrClin','entrevista','inicioForm','clinica1','articulacion3','teorias','fundamentos']},
+      {id:'proyectos5', name:'Proyectos (5/10 cred)', credits:10, module:'Prácticas', sem:5, prereqs:['cicloInicialComplete','diseno','metodosCuant','metodosCual']},
+      {id:'practicaIntegral', name:'Práctica de Ciclo Formación Integral', credits:10, module:'Prácticas', sem:5, prereqs:['cicloInicialComplete','etica','psicologysalud','sujetoAprendizaje','clinica1','articulacion3','herrClin','herrSocial','psicosocial']},
+      {id:'articulacion5', name:'Articulación de Saberes V: La psicología social y el problema de lo creativo', credits:5, module:'Articulación', sem:5, prereqs:['herrSocial','psicosocial','teorias','fundamentos','articulacion1','articulacion4','articulacion2']},
+      {id:'construccionIt', name:'Construcción de itinerario', credits:5, module:'Referencial', sem:5, prereqs:['psicosocial','articulacion1','teorias','fundamentos','sujetoAprendizaje','procesos','neurobiologia','desarrollo','clinica1','articulacion3','etica','epistemologia','psicologysalud','articulacion2']},
+
+      /* Semestre 6 */
+      {id:'probContemp', name:'Problemáticas contemporáneas de la psicología Social', credits:5, module:'Psicología', sem:6, prereqs:['psicosocial','articulacion1','teorias','fundamentos','articulacion5','articulacion4','articulacion2']},
+      {id:'psicologiaEduc', name:'Psicología y Educación', credits:5, module:'Psicología', sem:6, prereqs:['sujetoAprendizaje','procesos','neurobiologia','desarrollo','fundamentos']},
+      {id:'dispositivos', name:'Dispositivos Psicoterapéuticos', credits:5, module:'Metodológico', sem:6, prereqs:['clinica2','herrClin','entrevista','inicioForm','clinica1','articulacion3','teorias','fundamentos','etica','epistemologia']},
+      {id:'proyectos6', name:'Proyectos (5/10 cred)', credits:10, module:'Prácticas', sem:6, prereqs:['cicloInicialComplete','diseno','metodosCuant','metodosCual']},
+      {id:'practicaIntegral6', name:'Práctica de Ciclo Formación Integral', credits:10, module:'Prácticas', sem:6, prereqs:['cicloInicialComplete','etica','psicologysalud','sujetoAprendizaje','clinica1','articulacion3','herrClin','herrSocial','psicosocial']},
+      {id:'articulacion6', name:'Articulación de Saberes VI: Diálogos y ámbitos interdisciplinarios', credits:5, module:'Articulación', sem:6, prereqs:['articulacion1','articulacion2','articulacion3','teorias','fundamentos']},
+      {id:'construccionIt6', name:'Construcción de itinerario', credits:5, module:'Referencial', sem:6, prereqs:['psicosocial','articulacion1','teorias','fundamentos','sujetoAprendizaje','procesos','neurobiologia','desarrollo','clinica1','articulacion3','etica','epistemologia','psicologysalud','articulacion2']},
+
+      /* Semestre 7 */
+      {id:'optativa7p', name:'Optativas (Psicología) 5 cred', credits:5, module:'Psicología', sem:7, prereqs:['cicloInicialComplete','etica','sujetoAprendizaje','psicologysalud','clinica1','articulacion3','herrClin','herrSocial','psicosocial']},
+      {id:'optativa7m', name:'Optativas (Metodológico) 5 cred', credits:5, module:'Metodológico', sem:7, prereqs:['cicloInicialComplete','etica','sujetoAprendizaje','psicologysalud','clinica1','articulacion3','herrClin','herrSocial','psicosocial']},
+      {id:'idioma', name:'Idioma: Inglés o Portugués', credits:5, module:'Metodológico', sem:7, prereqs:['cicloInicialComplete']},
+      {id:'proyectos7', name:'Proyectos (10 cred)', credits:10, module:'Prácticas', sem:7, prereqs:['cicloInicialComplete','diseno','metodosCuant','metodosCual']},
+      {id:'practicaGrad7', name:'Práctica de Graduación (20 cred)', credits:20, module:'Prácticas', sem:7, prereqs:['practicaIntegral','cicloInicialComplete','etica','psicologysalud','sujetoAprendizaje','clinica1','articulacion3','herrClin','herrSocial','psicosocial']},
+      {id:'optativaArt7', name:'Optativas (Articulación) 5 cred', credits:5, module:'Articulación', sem:7, prereqs:['cicloInicialComplete','etica','sujetoAprendizaje','psicologysalud','clinica1','articulacion3','herrClin','herrSocial','psicosocial']},
+      {id:'referencialEgreso7', name:'Referencial de egreso (5 cred)', credits:5, module:'Referencial', sem:7, prereqs:['cicloInicialComplete','cicloIntegralComplete','practicaCredits20']},
+
+      /* Semestre 8 */
+      {id:'optativa8p', name:'Optativas (Psicología) 5 cred', credits:5, module:'Psicología', sem:8, prereqs:['cicloInicialComplete','etica','sujetoAprendizaje','psicologysalud','clinica1','articulacion3','herrClin','herrSocial','psicosocial']},
+      {id:'trabajofinal', name:'Trabajo final (40 cred)', credits:40, module:'Psicología', sem:8, prereqs:['cicloInicialComplete','cicloIntegralComplete','practicaCredits20','tutoriaPrereqs']},
+      {id:'optativa8m', name:'Optativas (Metodológico) 5 cred', credits:5, module:'Metodológico', sem:8, prereqs:['cicloInicialComplete','etica','sujetoAprendizaje','psicologysalud','clinica1','articulacion3','herrClin','herrSocial','psicosocial']},
+      {id:'proyectos8', name:'Proyectos (10 cred)', credits:10, module:'Prácticas', sem:8, prereqs:['cicloInicialComplete','diseno','metodosCuant','metodosCual']},
+      {id:'practicaGrad8', name:'Práctica de Graduación (20 cred)', credits:20, module:'Prácticas', sem:8, prereqs:['practicaIntegral','cicloInicialComplete','etica','psicologysalud','sujetoAprendizaje','clinica1','articulacion3','herrClin','herrSocial','psicosocial']},
+      {id:'optativaArt8', name:'Optativas (Articulación) 5 cred', credits:5, module:'Articulación', sem:8, prereqs:['cicloInicialComplete','etica','sujetoAprendizaje','psicologysalud','clinica1','articulacion3','herrClin','herrSocial','psicosocial']},
+      {id:'referencialEgreso8', name:'Referencial de egreso (5 cred)', credits:5, module:'Referencial', sem:8, prereqs:['cicloInicialComplete','cicloIntegralComplete','practicaCredits20']},
+
+      /* Sin módulo */
+      {id:'cooperacion', name:'Cooperación Institucional (u optativa de cualquier Módulo)', credits:5, module:'Sin', sem:7, prereqs:[]}
     ];
 
-    // target credits per module
-    const moduleTargets = {psic:145,met:60,pp:50,art:40,ref:20,sin:5};
+    // Module credit totals (from your numbers)
+    const moduleTotals = {
+      'Psicología':145,
+      'Metodológico':60,
+      'Prácticas':50,
+      'Articulación':40,
+      'Referencial':20,
+      'Sin':5
+    };
 
-    // helper maps
-    const byId = {};
-    materias.forEach(m=>byId[m.id]=m);
+    // helper: normalize prereq strings (strip parenthesis words and lowercase)
+    function norm(x){return x?x.toString().toLowerCase().replace(/\s*\(.*?\)\s*/g,'').trim():''}
+
+    // map id->course
+    const courseById = {};
+    courses.forEach(c=>courseById[c.id]=c);
 
     // load state from localStorage
-    const state = JSON.parse(localStorage.getItem('malla_state_v1')||'{}'); // ids->true
+    const STORAGE_KEY = 'mallaPsicoState-v1';
+    let state = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+    if(!state.approved) state.approved = {};
 
-    // render materias into cells
-    function renderGrid(){
-      materias.forEach(m=>{
-        const cellId = 'cell_'+m.id;
-        // decide which cell to put in: first semester in sems array
-        const sem = m.sems[0];
-        // We placed many specific cell ids in HTML; if not found, fall back to generic
-        const mapping = {
-          'hist_psic':'cell_historia','neurobiologia':'cell_neurobio','fund_psic':'cell_historia','epistemologia':'cell_neurobio',
-          'herr_trabajo':'cell_neurobio','art1':'cell_art1','inicio_form':'cell_inicioform','psic_desarrollo':'cell_psicodesarrollo','procesos_cogn':'cell_procesoscognitivos','teorias_psic':'cell_psicodesarrollo','methods_ext':'cell_procesoscognitivos','metodologia_gen':'cell_procesoscognitivos','entrevista':'cell_entrevista','art2':'cell_art2','formacion_integral':'cell_formacion_integral','psic_social':'cell_psicosocial','psic_suj_apr':'cell_psicosocial','etica':'cell_etica','metod_cual':'cell_etica','art3':'cell_art3','clinicaI':'cell_clinicaI','psic_salud':'cell_clinicaI','herr_clinica':'cell_herr_clinica','metod_cuant':'cell_herr_clinica','herr_psicosocial':'cell_herr_clinica','diseno_proy':'cell_diseno_proyecto','art4':'cell_art4','psicopat_ninos':'cell_psicopatologia_nyad','psicopat_adultos':'cell_psicopatologia_nyad','neuropsicologia':'cell_psicopatologia_nyad','clinicaII':'cell_clinicaII','proyectos_5':'cell_proyectos_5','practica_integral_5':'cell_proyectos_5','art5':'cell_art5','constr_itin_5':'cell_construccion_itinerario5','prob_contmp':'cell_problematicas','psic_y_educ':'cell_problematicas','dispositivos_psic':'cell_dispositivos','proyectos_6':'cell_proyectos_6','practica_integral_6':'cell_proyectos_6','art6':'cell_art6','constr_itin_6':'cell_construccion_itinerario6','opt_psico_7':'cell_opt_psico7','opt_met_7':'cell_opt_met7','idioma_7':'cell_opt_met7','proyectos_7':'cell_proyectos_7','practica_grad_7':'cell_proyectos_7','art_opt_7':'cell_art_opt7','refer_egreso_7':'cell_referencial7','opt_psico_8':'cell_opt_psico8','trabajo_final':'cell_referencial8','opt_met_8':'cell_opt_met8','proyectos_8':'cell_proyectos_8','practica_grad_8':'cell_proyectos_8','art_opt_8':'cell_art_opt8','refer_egreso_8':'cell_referencial8','cooperacion':'cell_cooperacion'
-        };
-        const containerId = mapping[m.id] || ('cell_generic_'+m.id);
-        let container = document.getElementById(containerId);
-        if(!container){
-          // create a generic cell if missing
-          container = document.createElement('div');
-          container.className='cell';
-          container.id = containerId;
-          document.getElementById('malla').appendChild(container);
+    function save(){localStorage.setItem(STORAGE_KEY, JSON.stringify(state))}
+
+    // compute sums per module
+    function computeModuleSums(){
+      const sums = {Psicología:0,Metodológico:0,Prácticas:0,Articulación:0,Referencial:0,Sin:0};
+      let total=0;
+      courses.forEach(c=>{
+        if(state.approved[c.id]){
+          const key = c.module;
+          sums[key] = (sums[key]||0) + c.credits;
+          total += c.credits;
         }
-        // create materia element
-        const el = document.createElement('div');
-        el.className='materia';
-        el.dataset.id = m.id;
-        el.title = m.name + ' — ' + m.credits + ' créditos';
-        el.innerText = m.name + ' ('+m.credits+' cred)';
-        el.onclick = ()=>toggleMateria(m.id);
-        container.appendChild(el);
       });
+      return {sums,total};
     }
 
-    // toggle materia approved/unapproved (only if available or approved currently)
-    function toggleMateria(id){
-      const el = document.querySelector(`.materia[data-id="${id}"]`);
-      const m = byId[id];
-      if(!el) return;
-      const isApproved = !!state[id];
-      const isLocked = el.classList.contains('locked') && !isApproved;
-      if(isLocked) return; // can't toggle locked ones
-      if(isApproved){
-        delete state[id];
-      } else {
-        state[id]=true;
+    // Determine if a course is unlocked: all prereqs satisfied OR semester threshold
+    function isPrereqSatisfied(prereqName){
+      if(!prereqName) return true;
+      const n = norm(prereqName);
+      // special tokens
+      if(n==='cicloinicialcomplete' || n==='ciclo inicial completo'){
+        // define as sum of sem1+2 credits
+        const sem12 = courses.filter(c=>c.sem===1||c.sem===2);
+        const sum12 = sem12.reduce((s,c)=>s + (state.approved[c.id]?c.credits:0),0);
+        const total12 = sem12.reduce((s,c)=>s+c.credits,0);
+        return sum12>=total12;
       }
-      saveState();
-      updateUI();
-    }
+      if(n==='ciclointegralcomplete' || n==='ciclo integral completo'){
+        // sem 3-6 complete
+        const sem = courses.filter(c=>c.sem>=3 && c.sem<=6);
+        const sum = sem.reduce((s,c)=>s + (state.approved[c.id]?c.credits:0),0);
+        const total = sem.reduce((s,c)=>s+c.credits,0);
+        return sum>=total;
+      }
+      if(n==='practicacredits20' || n==='practicacredits20'){
+        // 20 credits in practices/projects
+        const prac = courses.filter(c=>c.module==='Prácticas');
+        const sum = prac.reduce((s,c)=>s + (state.approved[c.id]?c.credits:0),0);
+        return sum>=20;
+      }
+      if(n==='tutoriaprequisites' || n==='tutoriaPrereqs'.toLowerCase()){
+        // treat as ciclo initial + ciclo integral + practicaCredits20
+        return isPrereqSatisfied('ciclo inicial completo') && isPrereqSatisfied('ciclo integral completo') && isPrereqSatisfied('practicaCredits20');
+      }
 
-    function saveState(){
-      localStorage.setItem('malla_state_v1', JSON.stringify(state));
-    }
-
-    // compute sums per module and per other conditions
-    function computeSums(){
-      const sums = {psic:0,met:0,pp:0,art:0,ref:0,sin:0,total:0};
-      Object.keys(state).forEach(id=>{
-        if(state[id]){
-          const m = byId[id];
-          if(!m) return;
-          sums[m.module] = (sums[m.module]||0) + m.credits;
-          sums.total += m.credits;
+      // otherwise find a course whose normalized name matches
+      for(const c of courses){
+        if(norm(c.name)===n){
+          return !!state.approved[c.id];
         }
+      }
+      // also allow matching by id
+      if(courseById[prereqName]) return !!state.approved[prereqName];
+
+      // if not found, fallback: treat as satisfied to avoid permanent block for ambiguous texts
+      return true;
+    }
+
+    function courseUnlocked(c){
+      // If course has explicit prereqs, check them
+      if(c.prereqs && c.prereqs.length>0){
+        return c.prereqs.every(p=>isPrereqSatisfied(p));
+      }
+      // else use semester thresholds
+      const totalApproved = computeModuleSums().total;
+      if(c.sem<=2) return true;
+      if(c.sem===3) return totalApproved>=45; // per your rule
+      if(c.sem===4) return totalApproved>=75;
+      if(c.sem===5) return totalApproved>=120;
+      if(c.sem===6) return totalApproved>=160;
+      if(c.sem===7) return totalApproved>=220;
+      if(c.sem===8) return totalApproved>=260;
+      return true;
+    }
+
+    // Build grid headers and rows
+    const grid = document.getElementById('grid');
+
+    function build(){
+      grid.innerHTML='';
+      // first row: blank (module header cell) + cycle headers (spanning 2 cols) + totals header
+      const blank = document.createElement('div'); blank.className='col-head'; blank.textContent='Módulos / Semestres'; grid.appendChild(blank);
+      // cycles: Ciclo Inicial (1+2), Ciclo de Formación Integral (3-6 spans 4 columns), Ciclo de Graduación (7+8)
+      const cycle1 = document.createElement('div'); cycle1.className='cycle-header'; cycle1.textContent='Ciclo Inicial'; cycle1.style.gridColumn='span 2'; grid.appendChild(cycle1);
+      const cycle2 = document.createElement('div'); cycle2.className='cycle-header'; cycle2.textContent='Ciclo de Formación Integral'; cycle2.style.gridColumn='span 4'; grid.appendChild(cycle2);
+      const cycle3 = document.createElement('div'); cycle3.className='cycle-header'; cycle3.textContent='Ciclo de Graduación'; cycle3.style.gridColumn='span 2'; grid.appendChild(cycle3);
+      const totalsHead = document.createElement('div'); totalsHead.className='col-head'; totalsHead.textContent='Créditos (por módulo)'; grid.appendChild(totalsHead);
+
+      // second row: semester headers: first column blank
+      const modHead = document.createElement('div'); modHead.className='module-name'; modHead.textContent=''; grid.appendChild(modHead);
+      for(let s=1;s<=8;s++){
+        const sh = document.createElement('div'); sh.className='col-head'; sh.textContent=(s===1?'1er semestre':s===2?'2do semestre':s+'º semestre'); grid.appendChild(sh);
+      }
+      const totHead2 = document.createElement('div'); totHead2.className='col-head'; totHead2.textContent='Logros actuales / Totales'; grid.appendChild(totHead2);
+
+      // rows by module in specific order
+      const modulesOrder = ['Psicología','Metodológico','Prácticas','Articulación','Referencial','Sin'];
+      modulesOrder.forEach(mod=>{
+        // module name cell
+        const mn = document.createElement('div'); mn.className='module-name'; mn.textContent = mod==='Sin'?'':(mod==='Prácticas'?'Módulo Prácticas y Proyectos':(mod==='Articulación'?'Módulo Articulación de Saberes':(mod==='Referencial'?'Módulo Referencial':(mod==='Metodológico'?'Módulo Metodológico':'Módulo de Psicología'))));
+        grid.appendChild(mn);
+        // semester cells
+        for(let s=1;s<=8;s++){
+          const cell = document.createElement('div'); cell.className='semester-cell'; cell.dataset.sem=s; cell.dataset.module=mod;
+          // find courses matching module and semester
+          const list = courses.filter(c=>c.module===mod && c.sem===s);
+          list.forEach(c=>{
+            const unlocked = courseUnlocked(c);
+            const approved = !!state.approved[c.id];
+            const el = document.createElement('div'); el.className='course'; el.dataset.id=c.id;
+            if(!unlocked) el.classList.add('locked');
+            if(approved) el.classList.add('approved');
+            const name = document.createElement('div'); name.className='name'; name.textContent=c.name;
+            const cred = document.createElement('div'); cred.className='cred'; cred.textContent=c.credits+'cr';
+            el.appendChild(name); el.appendChild(cred);
+            el.addEventListener('click', (e)=>{
+              e.stopPropagation();
+              onCourseClick(c.id);
+            });
+            el.title = (c.prereqs && c.prereqs.length?('Previaturas: ' + c.prereqs.join(', ')):'');
+            cell.appendChild(el);
+          });
+          grid.appendChild(cell);
+        }
+        // totals column cell for this module
+        const totCell = document.createElement('div'); totCell.className='totals-col';
+        const box = document.createElement('div'); box.className='total-box';
+        box.innerHTML = `<div style="font-weight:700;margin-bottom:6px">${mod==='Sin'? 'Sin módulo' : (mod==='Prácticas'?'Prácticas y Proyectos':mod)}</div>`;
+        totCell.appendChild(box);
+        grid.appendChild(totCell);
       });
-      return sums;
+
+      // after building grid, we need to fill the totals cells with dynamic values
+      updateTotals();
     }
 
-    // helper checks
-    function cicloInicialComplete(){
-      // simple: check that all materias in sem 1 and 2 are approved
-      return materias.filter(m=>m.sems[0]<=2).every(m=>!!state[m.id]);
-    }
-    function cicloIntegralComplete(){
-      // simple: check that sems 3-6 all approved
-      return materias.filter(m=>m.sems[0]>=3 && m.sems[0]<=6).every(m=>!!state[m.id]);
-    }
-    function pp20credits(){
-      const sums = computeSums();
-      return sums.pp >= 20;
+    function updateTotals(){
+      // find all total-box elements in order
+      const boxes = Array.from(document.querySelectorAll('.total-box'));
+      const {sums,total} = computeModuleSums();
+      const order = ['Psicología','Metodológico','Prácticas','Articulación','Referencial','Sin'];
+      boxes.forEach((box,i)=>{
+        const mod = order[i];
+        box.innerHTML = `<div style="font-weight:700;margin-bottom:6px">${mod==='Sin'? 'Sin módulo' : (mod==='Prácticas'?'Prácticas y Proyectos':mod)}</div>`;
+        const row = document.createElement('div'); row.className='total-row';
+        row.innerHTML = `<div>${sums[mod]||0} / ${moduleTotals[mod]}</div><div style="font-weight:700">${Math.round(((sums[mod]||0)/moduleTotals[mod])*100)}%</div>`;
+        box.appendChild(row);
+      });
+      // also show overall total at the very bottom of last box
+      const lastBox = boxes[boxes.length-1];
+      const overall = document.createElement('div'); overall.style.marginTop='8px'; overall.style.fontSize='12px'; overall.innerHTML = `<div style="font-weight:700">Total aprobado: ${total} / 320</div>`;
+      lastBox.appendChild(overall);
+
+      // After totals updated, update each course's locked/unlocked state in DOM
+      document.querySelectorAll('.course').forEach(el=>{
+        const id = el.dataset.id; const c = courseById[id];
+        const unlocked = courseUnlocked(c);
+        el.classList.toggle('locked',!unlocked);
+      });
     }
 
-    function creditRuleForThird(){
-      // para cursar 3er semestre: 45 créditos distribuidos: 20 psic, 10 met, 5 art, 5 ref, 5 otros
-      const sums = computeSums();
-      const cond = (sums.psic>=20 && sums.met>=10 && sums.art>=5 && sums.ref>=5 && (sums.total>=45));
-      return cond;
-    }
-
-    // evaluate available/locked/approved states
-    function updateUI(){
-      // update module sums display
-      const sums = computeSums();
-      document.getElementById('sum_psic').innerText = sums.psic+' / '+moduleTargets.psic+' créditos';
-      document.getElementById('sum_met').innerText = sums.met+' / '+moduleTargets.met+' créditos';
-      document.getElementById('sum_pp').innerText = sums.pp+' / '+moduleTargets.pp+' créditos';
-      document.getElementById('sum_art').innerText = sums.art+' / '+moduleTargets.art+' créditos';
-      document.getElementById('sum_ref').innerText = sums.ref+' / '+moduleTargets.ref+' créditos';
-      document.getElementById('sum_sm').innerText = sums.sin+' / '+moduleTargets.sin+' créditos';
-      document.getElementById('sum_total').innerText = sums.total+' / 320 créditos';
-
-      // compute some global flags
-      const flagCicloInicial = cicloInicialComplete();
-      const flagCredit3 = creditRuleForThird();
-      const flagPP20 = pp20credits();
-      // iterate materia elements
-      document.querySelectorAll('.materia').forEach(el=>{
-        const id = el.dataset.id;
-        const m = byId[id];
-        const approved = !!state[id];
-        // base: locked if prereqs unmet
-        let locked = false;
-        // check prereqs
-        if(m.prereqs && m.prereqs.length){
-          for(const pre of m.prereqs){
-            // special flags
-            if(pre==='ciclo_inicial_complete'){ if(!flagCicloInicial){ locked=true; break; } else continue; }
-            if(pre==='ciclo_integral_complete'){ if(!flagCicloIntegral){ locked=true; break; } else continue; }
-            if(pre==='pp_20credits'){ if(!flagPP20){ locked=true; break; } else continue; }
-            if(pre==='design_optional_flag'){ /* allow for now: unlocked by default */ continue; }
-            // else prereq is a materia id
-            if(!state[pre]){ locked=true; break; }
+    function onCourseClick(id){
+      const c = courseById[id];
+      const unlocked = courseUnlocked(c);
+      if(!unlocked) {
+        // show quick details and reason
+        showDetails(c,true);
+        return;
+      }
+      // toggle approval
+      state.approved[id] = !state.approved[id];
+      // if toggled off, ensure that any course depending on this becomes unapproved automatically
+      if(!state.approved[id]){
+        // cascade: any course whose prereqs include this course should be turned off
+        let changed = true;
+        while(changed){
+          changed = false;
+          for(const oc of courses){
+            if(state.approved[oc.id]){
+              const ok = (oc.prereqs && oc.prereqs.length>0)? oc.prereqs.every(p=>isPrereqSatisfied(p)) : true;
+              if(!ok){ state.approved[oc.id]=false; changed=true; }
+            }
           }
         }
-        // special: third semester credit rule blocks all sem3 materias until creditRuleForThird true
-        if(m.sems[0]===3 && !flagCredit3) locked = true;
-
-        // also block semesters higher than 3 until previous sem have been mostly achieved (simple heuristic)
-        if(m.sems[0]===4){
-          // require that at least the majority of sem 3 is approved OR that specific prereqs are met
-          const sem3 = materias.filter(x=>x.sems[0]===3);
-          const sem3ApprovedCount = sem3.filter(x=>state[x.id]).length;
-          if(sem3ApprovedCount < Math.max(1, Math.floor(sem3.length/2))){ locked = true; }
-        }
-        if(m.sems[0]>=5){
-          // require ciclo inicial completed and at least some sem4 approvals
-          const sem4 = materias.filter(x=>x.sems[0]===4);
-          const sem4ApprovedCount = sem4.filter(x=>state[x.id]).length;
-          if(!flagCicloInicial || sem4ApprovedCount < 1) locked = true;
-        }
-
-        // apply classes
-        el.classList.remove('locked','available','approved');
-        if(approved){ el.classList.add('approved'); }
-        else if(locked){ el.classList.add('locked'); }
-        else { el.classList.add('available'); }
-      });
-
-      // update flag for ciclo integral (used in prereqs) after UI update
-      window.flagCicloIntegral = cicloIntegralComplete();
+      }
+      save();
+      build();
     }
 
-    // init
-    renderGrid();
-    updateUI();
+    // details panel
+    const details = document.getElementById('details');
+    const dname = document.getElementById('dname');
+    const ddesc = document.getElementById('ddesc');
+    const dpr = document.getElementById('dpr');
+    const dToggle = document.getElementById('dToggle');
+    const dClose = document.getElementById('dClose');
+    let currentDetail = null;
 
-    // explain briefly in console
-    console.log('Malla cargada. Estado persistido en localStorage (clave malla_state_v1).');
-    console.log('Reglas implementadas: 1) Semestre 3 bloqueado hasta cumplir regla de créditos (20 psic, 10 met, 5 art, 5 ref, total 45). 2) Semestre 4 requiere progreso en semestre 3. 3) Semestres >=5 requieren al menos ciclo inicial aprobado y progreso en sem4. 4) Muchas materias con prerequisitos explícitos los tienen en la lista de datos (ej. Clínica I, Psicología y Salud, etc.).');
+    function showDetails(course,onlyShow=false){
+      currentDetail = course;
+      dname.textContent = course.name + ' ('+course.credits+'cr)';
+      ddesc.textContent = 'Módulo: ' + (course.module==='Sin'?'(sin módulo)':course.module);
+      dpr.textContent = 'Previaturas: ' + (course.prereqs && course.prereqs.length? course.prereqs.join(', '): 'Ninguna explicita.');
+      details.style.display = 'block';
+      dToggle.textContent = state.approved[course.id]? 'Desaprobar': 'Aprobar';
+      dToggle.disabled = !courseUnlocked(course);
+      dToggle.style.opacity = courseUnlocked(course)? '1':'0.5';
+      if(onlyShow) return;
+    }
+    dClose.addEventListener('click', ()=>{ details.style.display='none'; });
+    dToggle.addEventListener('click', ()=>{
+      if(!currentDetail) return;
+      if(!courseUnlocked(currentDetail)) return;
+      onCourseClick(currentDetail.id);
+      details.style.display='none';
+    });
 
+    // click outside to close details
+    document.body.addEventListener('click', (e)=>{
+      if(!details.contains(e.target)) details.style.display='none';
+    });
+
+    // initial build
+    build();
   </script>
 </body>
 </html>
