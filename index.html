@@ -1,197 +1,210 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>Malla Curricular Psicología – UdelaR</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 :root{
-  --rosa:#f4c2d7;
+  --rosa:#f6c1d1;
   --gris:#cfcfd4;
-  --gris-osc:#b6b6bd;
+  --gris-osc:#b5b5bb;
   --texto:#333;
 }
 body{
+  font-family: "Segoe UI", Arial, sans-serif;
+  background:#faf7f9;
   margin:0;
-  padding:16px;
-  font-family:system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background:#faf7fa;
+  padding:20px;
   color:var(--texto);
 }
 h1{
   text-align:center;
-  margin-bottom:24px;
+  margin-bottom:6px;
+}
+.sub{
+  text-align:center;
+  font-size:14px;
+  margin-bottom:20px;
 }
 .malla{
   display:grid;
-  grid-template-columns: 220px repeat(8, 1fr) 220px;
-  gap:8px;
+  grid-template-columns: 220px repeat(8, 1fr) 180px;
+  gap:6px;
 }
-.ciclo{
-  grid-column:2 / span 2;
+.header-ciclo{
+  grid-column: span 2;
   text-align:center;
   font-weight:600;
+  background:#f1d6e0;
   padding:8px 0;
+  border-radius:10px;
 }
-.ciclo.integral{ grid-column:4 / span 2; }
-.ciclo.integral2{ grid-column:6 / span 2; }
-.ciclo.graduacion{ grid-column:8 / span 2; }
-.header{
+.header-sem{
   text-align:center;
   font-weight:600;
+  background:#f7e3ea;
+  padding:6px 0;
+  border-radius:10px;
 }
 .modulo{
   font-weight:600;
-  padding:6px;
-}
-.celda{
-  min-height:42px;
+  padding:8px;
+  background:#f3edf0;
+  border-radius:10px;
 }
 .materia{
-  background:var(--rosa);
-  border-radius:8px;
   padding:6px 8px;
+  border-radius:8px;
+  background:var(--gris);
   font-size:13px;
   cursor:pointer;
+  transition:.2s;
 }
-.materia.bloqueada{
-  background:var(--gris);
-  cursor:not-allowed;
+.materia.disponible{
+  background:var(--rosa);
 }
 .materia.aprobada{
   background:var(--gris-osc);
-  text-decoration:line-through;
+  text-decoration: line-through;
+}
+.materia small{
+  display:block;
+  font-size:11px;
 }
 .creditos{
-  font-size:12px;
-  opacity:0.8;
-}
-.contador{
-  background:#fff;
-  border-radius:8px;
-  padding:6px 8px;
+  background:#f3edf0;
+  border-radius:10px;
+  padding:6px;
   font-size:13px;
+}
+.creditos span{
+  font-weight:600;
+}
+.footer-total{
+  margin-top:20px;
+  font-weight:600;
 }
 </style>
 </head>
 <body>
 
-<h1>Malla Curricular – Psicología UdelaR (Plan 2013)</h1>
+<h1>Malla Curricular – Psicología</h1>
+<div class="sub">Facultad de Psicología – UdelaR | Plan 2013</div>
 
-<div class="malla">
+<div class="malla" id="malla">
 
-<!-- CICLOS -->
+<!-- encabezados ciclos -->
 <div></div>
-<div class="ciclo">Ciclo Inicial</div>
-<div class="ciclo">Ciclo Inicial</div>
-<div class="ciclo integral">Formación Integral</div>
-<div class="ciclo integral">Formación Integral</div>
-<div class="ciclo integral2">Formación Integral</div>
-<div class="ciclo integral2">Formación Integral</div>
-<div class="ciclo graduacion">Ciclo de Graduación</div>
-<div class="ciclo graduacion">Ciclo de Graduación</div>
+<div class="header-ciclo" style="grid-column:2/4">Ciclo Inicial</div>
+<div class="header-ciclo" style="grid-column:4/6">Ciclo de Formación Integral</div>
+<div class="header-ciclo" style="grid-column:6/8">Ciclo de Formación Integral</div>
+<div class="header-ciclo" style="grid-column:8/10">Ciclo de Graduación</div>
 <div></div>
 
-<!-- HEADERS -->
+<!-- encabezados semestres -->
 <div></div>
-<div class="header">1° Sem</div>
-<div class="header">2° Sem</div>
-<div class="header">3° Sem</div>
-<div class="header">4° Sem</div>
-<div class="header">5° Sem</div>
-<div class="header">6° Sem</div>
-<div class="header">7° Sem</div>
-<div class="header">8° Sem</div>
-<div class="header">Créditos</div>
+<div class="header-sem">1° Sem</div>
+<div class="header-sem">2° Sem</div>
+<div class="header-sem">3° Sem</div>
+<div class="header-sem">4° Sem</div>
+<div class="header-sem">5° Sem</div>
+<div class="header-sem">6° Sem</div>
+<div class="header-sem">7° Sem</div>
+<div class="header-sem">8° Sem</div>
+<div class="header-sem">Créditos</div>
 
-<!-- MODULO PSICOLOGIA -->
+<!-- MÓDULO PSICOLOGÍA -->
 <div class="modulo">Módulo de Psicología</div>
-<div class="celda"><div class="materia" data-mod="psi" data-cred="10">Historia de la Psicología<div class="creditos">10</div></div></div>
-<div class="celda"><div class="materia" data-mod="psi" data-cred="10">Psicología del Desarrollo<div class="creditos">10</div></div></div>
-<div class="celda"><div class="materia" data-mod="psi" data-cred="10">Psicología Social<div class="creditos">10</div></div></div>
-<div class="celda"><div class="materia" data-mod="psi" data-cred="5">Clínica I<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="psi" data-cred="5">Psicopatología Niños y Adolescentes<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="psi" data-cred="5">Problemáticas Contemporáneas<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="psi" data-cred="5">Optativas<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="psi" data-cred="40">Trabajo Final<div class="creditos">40</div></div></div>
-<div class="contador" id="psiCount">0 / 145</div>
+<div class="materia" data-mod="psi" data-cred="10">Historia de la Psicología<small>10 cr</small></div>
+<div class="materia" data-mod="psi" data-cred="10">Psicología del Desarrollo<small>10 cr</small></div>
+<div class="materia" data-mod="psi" data-cred="10">Psicología Social<small>10 cr</small></div>
+<div class="materia" data-mod="psi" data-cred="5">Clínica I: Fundamentos Psicoanalíticos<small>5 cr</small></div>
+<div class="materia" data-mod="psi" data-cred="5">Psicopatología Niños y Adolescentes<small>5 cr</small></div>
+<div class="materia" data-mod="psi" data-cred="5">Problemáticas Contemporáneas Ps. Social<small>5 cr</small></div>
+<div class="materia" data-mod="psi" data-cred="5">Optativas Psicología<small>5 cr</small></div>
+<div class="materia" data-mod="psi" data-cred="40">Trabajo Final<small>40 cr</small></div>
+<div class="creditos"><span id="psi">0</span> / 145</div>
 
-<!-- MODULO METODOLOGICO -->
+<!-- MÓDULO METODOLÓGICO -->
 <div class="modulo">Módulo Metodológico</div>
-<div class="celda"><div class="materia" data-mod="met" data-cred="5">Epistemología<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="met" data-cred="5">Metodología General<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="met" data-cred="3">Ética y Deontología<div class="creditos">3</div></div></div>
-<div class="celda"><div class="materia" data-mod="met" data-cred="5">Herramientas Clínica<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="met" data-cred="5">Clínica II<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="met" data-cred="5">Dispositivos Psicoterapéuticos<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="met" data-cred="5">Optativas<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="met" data-cred="5">Optativas<div class="creditos">5</div></div></div>
-<div class="contador" id="metCount">0 / 60</div>
+<div class="materia" data-mod="met" data-cred="5">Epistemología<small>5 cr</small></div>
+<div class="materia" data-mod="met" data-cred="5">Metodología General de la Investigación<small>5 cr</small></div>
+<div class="materia" data-mod="met" data-cred="3">Ética y Deontología<small>3 cr</small></div>
+<div class="materia" data-mod="met" data-cred="5">Métodos y Técnicas Cuantitativas<small>5 cr</small></div>
+<div class="materia" data-mod="met" data-cred="5">Clínica II: Intervenciones<small>5 cr</small></div>
+<div class="materia" data-mod="met" data-cred="5">Dispositivos Psicoterapéuticos<small>5 cr</small></div>
+<div class="materia" data-mod="met" data-cred="5">Optativas Metodológicas<small>5 cr</small></div>
+<div class="materia" data-mod="met" data-cred="5">Idioma (Ing/Port)<small>5 cr</small></div>
+<div class="creditos"><span id="met">0</span> / 60</div>
 
-<!-- PRACTICAS -->
+<!-- MÓDULO PRÁCTICAS -->
 <div class="modulo">Prácticas y Proyectos</div>
-<div class="celda"></div>
-<div class="celda"><div class="materia" data-mod="prac" data-cred="5">Entrevista Psicológica<div class="creditos">5</div></div></div>
-<div class="celda"></div>
-<div class="celda"><div class="materia" data-mod="prac" data-cred="5">Diseño de Proyectos<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="prac" data-cred="10">Práctica Integral<div class="creditos">10</div></div></div>
-<div class="celda"><div class="materia" data-mod="prac" data-cred="10">Proyectos<div class="creditos">10</div></div></div>
-<div class="celda"><div class="materia" data-mod="prac" data-cred="20">Práctica de Graduación<div class="creditos">20</div></div></div>
-<div class="celda"><div class="materia" data-mod="prac" data-cred="10">Proyectos<div class="creditos">10</div></div></div>
-<div class="contador" id="pracCount">0 / 50</div>
+<div></div>
+<div class="materia" data-mod="prac" data-cred="5">Entrevista Psicológica<small>5 cr</small></div>
+<div></div>
+<div class="materia" data-mod="prac" data-cred="5">Diseño de Proyectos<small>5 cr</small></div>
+<div class="materia" data-mod="prac" data-cred="10">Práctica Ciclo Integral<small>10 cr</small></div>
+<div class="materia" data-mod="prac" data-cred="10">Práctica Ciclo Integral<small>10 cr</small></div>
+<div class="materia" data-mod="prac" data-cred="20">Práctica de Graduación<small>20 cr</small></div>
+<div class="materia" data-mod="prac" data-cred="20">Práctica de Graduación<small>20 cr</small></div>
+<div class="creditos"><span id="prac">0</span> / 50</div>
 
-<!-- ARTICULACION -->
+<!-- ARTICULACIÓN -->
 <div class="modulo">Articulación de Saberes</div>
-<div class="celda"><div class="materia" data-mod="art" data-cred="5">AS I<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="art" data-cred="5">AS II<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="art" data-cred="5">AS III<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="art" data-cred="5">AS IV<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="art" data-cred="5">AS V<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="art" data-cred="5">AS VI<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="art" data-cred="5">Optativas<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="art" data-cred="5">Optativas<div class="creditos">5</div></div></div>
-<div class="contador" id="artCount">0 / 40</div>
+<div class="materia" data-mod="art" data-cred="5">Articulación I<small>5 cr</small></div>
+<div class="materia" data-mod="art" data-cred="5">Articulación II<small>5 cr</small></div>
+<div class="materia" data-mod="art" data-cred="5">Articulación III<small>5 cr</small></div>
+<div class="materia" data-mod="art" data-cred="5">Articulación IV<small>5 cr</small></div>
+<div class="materia" data-mod="art" data-cred="5">Articulación V<small>5 cr</small></div>
+<div class="materia" data-mod="art" data-cred="5">Articulación VI<small>5 cr</small></div>
+<div class="materia" data-mod="art" data-cred="5">Optativas Articulación<small>5 cr</small></div>
+<div></div>
+<div class="creditos"><span id="art">0</span> / 40</div>
 
 <!-- REFERENCIAL -->
 <div class="modulo">Referencial</div>
-<div class="celda"><div class="materia" data-mod="ref" data-cred="5">Inicio a la Formación<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="ref" data-cred="5">Formación Integral<div class="creditos">5</div></div></div>
-<div class="celda"></div>
-<div class="celda"></div>
-<div class="celda"><div class="materia" data-mod="ref" data-cred="5">Construcción de Itinerario<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="ref" data-cred="5">Construcción de Itinerario<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="ref" data-cred="5">Referencial de Egreso<div class="creditos">5</div></div></div>
-<div class="celda"><div class="materia" data-mod="ref" data-cred="5">Referencial de Egreso<div class="creditos">5</div></div></div>
-<div class="contador" id="refCount">0 / 20</div>
-
-<!-- SIN MODULO -->
+<div class="materia" data-mod="ref" data-cred="5">Inicio a la Formación<small>5 cr</small></div>
+<div class="materia" data-mod="ref" data-cred="5">Formación Integral<small>5 cr</small></div>
 <div></div>
-<div class="celda"><div class="materia" data-mod="sin" data-cred="5">Cooperación Institucional<div class="creditos">5</div></div></div>
-<div class="celda"></div>
-<div class="celda"></div>
-<div class="celda"></div>
-<div class="celda"></div>
-<div class="celda"></div>
-<div class="celda"></div>
-<div class="celda"></div>
-<div class="contador">0 / 5</div>
+<div></div>
+<div class="materia" data-mod="ref" data-cred="5">Construcción de Itinerario<small>5 cr</small></div>
+<div class="materia" data-mod="ref" data-cred="5">Construcción de Itinerario<small>5 cr</small></div>
+<div class="materia" data-mod="ref" data-cred="5">Referencial de Egreso<small>5 cr</small></div>
+<div class="materia" data-mod="ref" data-cred="5">Referencial de Egreso<small>5 cr</small></div>
+<div class="creditos"><span id="ref">0</span> / 20</div>
+
+<!-- SIN MÓDULO -->
+<div></div>
+<div class="materia" data-mod="sin" data-cred="5">Cooperación Institucional<small>5 cr</small></div>
+<div></div><div></div><div></div><div></div><div></div><div></div>
+<div class="creditos"><span id="sin">0</span> / 5</div>
 
 </div>
 
-<script>
-const totales={psi:145,met:60,prac:50,art:40,ref:20,sin:5};
-const contadores={psi:0,met:0,prac:0,art:0,ref:0,sin:0};
+<div class="footer-total">Total general: <span id="total">0</span> / 320 créditos</div>
 
-document.querySelectorAll('.materia').forEach(m=>{
-  m.addEventListener('click',()=>{
-    if(m.classList.contains('bloqueada')) return;
-    m.classList.toggle('aprobada');
-    const mod=m.dataset.mod;
-    const cred=Number(m.dataset.cred);
-    contadores[mod]+=m.classList.contains('aprobada')?cred:-cred;
-    document.getElementById(mod+'Count').textContent=`${contadores[mod]} / ${totales[mod]}`;
+<script>
+const materias = document.querySelectorAll('.materia');
+const totales = {psi:0, met:0, prac:0, art:0, ref:0, sin:0};
+
+materias.forEach(m => {
+  m.addEventListener('click', () => {
+    if(m.classList.contains('aprobada')) return;
+    m.classList.add('aprobada');
+    const mod = m.dataset.mod;
+    const cred = parseInt(m.dataset.cred);
+    totales[mod] += cred;
+    document.getElementById(mod).innerText = totales[mod];
+    actualizarTotal();
   });
 });
+
+function actualizarTotal(){
+  let suma = 0;
+  Object.values(totales).forEach(v => suma += v);
+  document.getElementById('total').innerText = suma;
+}
 </script>
 
 </body>
