@@ -1,170 +1,314 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Malla Curricular – Psicología UdelaR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 16px;
-    }
+<meta charset="UTF-8">
+<title>Malla Psicología UdelaR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    h1 {
-      text-align: center;
-      margin-bottom: 4px;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #faf7f9;
+  margin: 0;
+  padding: 16px;
+}
 
-    h2 {
-      text-align: center;
-      margin-top: 0;
-      font-weight: normal;
-      color: #555;
-    }
+h1 {
+  text-align: center;
+  margin-bottom: 24px;
+}
 
-    .ciclo {
-      margin-top: 32px;
-    }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
 
-    .ciclo-titulo {
-      text-align: center;
-      font-size: 1.2em;
-      margin-bottom: 12px;
-      font-weight: bold;
-    }
+th, td {
+  border: 1px solid #e0d5db;
+  padding: 6px;
+  vertical-align: top;
+  font-size: 13px;
+}
 
-    .semestres {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-    }
+th {
+  background: #f2dbe5;
+  font-weight: bold;
+  text-align: center;
+}
 
-    .semestre {
-      background: #ffffff;
-      border-radius: 10px;
-      padding: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
+.ciclo {
+  background: #eac4d5;
+  text-align: center;
+  font-weight: bold;
+}
 
-    .semestre h3 {
-      text-align: center;
-      margin-top: 0;
-      margin-bottom: 8px;
-    }
+.modulo {
+  background: #f6edf2;
+  font-weight: bold;
+  width: 180px;
+}
 
-    .modulo {
-      margin-bottom: 10px;
-    }
+.materia {
+  background: #f7c9dc;
+  border-radius: 6px;
+  padding: 6px;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
 
-    .modulo h4 {
-      margin: 6px 0;
-      font-size: 0.95em;
-      color: #333;
-    }
+.materia.bloqueada {
+  background: #d6d6d6;
+  color: #555;
+  cursor: not-allowed;
+}
 
-    .materia {
-      background: #f9f9f9;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 6px;
-      margin-bottom: 4px;
-      cursor: pointer;
-      font-size: 0.85em;
-    }
+.materia.aprobada {
+  background: #bfbfbf;
+  text-decoration: line-through;
+}
 
-    .materia.aprobada {
-      background: #c8e6c9;
-      border-color: #4caf50;
-    }
-
-    .creditos {
-      font-size: 0.75em;
-      color: #555;
-    }
-  </style>
+.creditos-col {
+  background: #f6edf2;
+  font-weight: bold;
+}
+</style>
 </head>
+
 <body>
 
-<h1>Malla Curricular – Facultad de Psicología</h1>
-<h2>Universidad de la República · Plan 2013</h2>
-<p style="text-align:center">Tocá una materia para marcarla como aprobada.</p>
+<h1>Malla Curricular – Psicología UdelaR (Plan 2013)</h1>
 
-<!-- CICLO INICIAL -->
-<div class="ciclo">
-  <div class="ciclo-titulo">Ciclo Inicial</div>
-  <div class="semestres">
+<table>
 
-    <!-- 1er Semestre -->
-    <div class="semestre">
-      <h3>1er Semestre</h3>
+<!-- CICLOS -->
+<tr>
+  <th></th>
+  <th colspan="2" class="ciclo">Ciclo Inicial</th>
+  <th colspan="2" class="ciclo">Ciclo de Formación Integral</th>
+  <th colspan="2" class="ciclo">Ciclo de Formación Integral</th>
+  <th colspan="2" class="ciclo">Ciclo de Graduación</th>
+  <th class="ciclo">Créditos</th>
+</tr>
 
-      <div class="modulo">
-        <h4>Módulo de Psicología</h4>
-        <div class="materia" onclick="toggle(this)">Historia de la Psicología <span class="creditos">(10 cred)</span></div>
-        <div class="materia" onclick="toggle(this)">Neurobiología de la Mente <span class="creditos">(5 cred)</span></div>
-        <div class="materia" onclick="toggle(this)">Fundamentos de la Psicología <span class="creditos">(5 cred)</span></div>
-      </div>
+<!-- SEMESTRES -->
+<tr>
+  <th></th>
+  <th>1° Sem</th>
+  <th>2° Sem</th>
+  <th>3° Sem</th>
+  <th>4° Sem</th>
+  <th>5° Sem</th>
+  <th>6° Sem</th>
+  <th>7° Sem</th>
+  <th>8° Sem</th>
+  <th></th>
+</tr>
 
-      <div class="modulo">
-        <h4>Módulo Metodológico</h4>
-        <div class="materia" onclick="toggle(this)">Epistemología <span class="creditos">(5 cred)</span></div>
-        <div class="materia" onclick="toggle(this)">Herramientas para el Trabajo Intelectual <span class="creditos">(5 cred)</span></div>
-      </div>
+<!-- MODULO PSICOLOGIA -->
+<tr>
+<td class="modulo">Módulo de Psicología</td>
 
-      <div class="modulo">
-        <h4>Módulo Articulación de Saberes</h4>
-        <div class="materia" onclick="toggle(this)">Articulación de Saberes I <span class="creditos">(5 cred)</span></div>
-      </div>
+<td>
+<div class="materia">Historia de la Psicología (10)</div>
+<div class="materia">Neurobiología de la Mente (5)</div>
+<div class="materia">Fundamentos de la Psicología (5)</div>
+</td>
 
-      <div class="modulo">
-        <h4>Módulo Referencial</h4>
-        <div class="materia" onclick="toggle(this)">Inicio a la Formación en Psicología <span class="creditos">(5 cred)</span></div>
-      </div>
-    </div>
+<td>
+<div class="materia">Psicología del Desarrollo (10)</div>
+<div class="materia">Procesos Cognitivos (5)</div>
+<div class="materia">Teorías Psicológicas (5)</div>
+</td>
 
-    <!-- 2do Semestre -->
-    <div class="semestre">
-      <h3>2do Semestre</h3>
+<td>
+<div class="materia">Psicología Social (10)</div>
+<div class="materia">Psicología, Sujeto y Aprendizaje (5)</div>
+</td>
 
-      <div class="modulo">
-        <h4>Módulo de Psicología</h4>
-        <div class="materia" onclick="toggle(this)">Psicología del Desarrollo <span class="creditos">(10 cred)</span></div>
-        <div class="materia" onclick="toggle(this)">Procesos Cognitivos <span class="creditos">(5 cred)</span></div>
-        <div class="materia" onclick="toggle(this)">Teorías Psicológicas <span class="creditos">(5 cred)</span></div>
-      </div>
+<td>
+<div class="materia bloqueada">Clínica I: Fundamentos Psicoanalíticos (5)</div>
+<div class="materia bloqueada">Psicología y Salud (10)</div>
+</td>
 
-      <div class="modulo">
-        <h4>Módulo Metodológico</h4>
-        <div class="materia" onclick="toggle(this)">Métodos y herramientas orientadas a la extensión <span class="creditos">(2 cred)</span></div>
-        <div class="materia" onclick="toggle(this)">Metodología General de la Investigación <span class="creditos">(5 cred)</span></div>
-      </div>
+<td>
+<div class="materia bloqueada">Psicopatología Niños y Adolescentes (5)</div>
+<div class="materia bloqueada">Psicopatología Adultos (5)</div>
+<div class="materia bloqueada">Neuropsicología (5)</div>
+</td>
 
-      <div class="modulo">
-        <h4>Módulo Prácticas y Proyectos</h4>
-        <div class="materia" onclick="toggle(this)">Entrevista Psicológica <span class="creditos">(5 cred)</span></div>
-      </div>
+<td>
+<div class="materia bloqueada">Problemáticas Contemporáneas Ps. Social (5)</div>
+<div class="materia bloqueada">Psicología y Educación (5)</div>
+</td>
 
-      <div class="modulo">
-        <h4>Módulo Articulación de Saberes</h4>
-        <div class="materia" onclick="toggle(this)">Articulación de Saberes II <span class="creditos">(5 cred)</span></div>
-      </div>
+<td>
+<div class="materia bloqueada">Optativas Psicología (5)</div>
+</td>
 
-      <div class="modulo">
-        <h4>Módulo Referencial</h4>
-        <div class="materia" onclick="toggle(this)">Formación Integral <span class="creditos">(5 cred)</span></div>
-      </div>
-    </div>
+<td>
+<div class="materia bloqueada">Optativas Psicología (5)</div>
+<div class="materia bloqueada">Trabajo Final (40)</div>
+</td>
 
-  </div>
-</div>
+<td class="creditos-col">145</td>
+</tr>
 
-<script>
-  function toggle(el) {
-    el.classList.toggle("aprobada");
-  }
-</script>
+<!-- MODULO METODOLOGICO -->
+<tr>
+<td class="modulo">Módulo Metodológico</td>
+
+<td>
+<div class="materia">Epistemología (5)</div>
+<div class="materia">Herramientas Trabajo Intelectual (5)</div>
+</td>
+
+<td>
+<div class="materia">Métodos Extensión (2)</div>
+<div class="materia">Metodología Investigación (5)</div>
+</td>
+
+<td>
+<div class="materia">Ética y Deontología (3)</div>
+<div class="materia">Métodos Cualitativos (5)</div>
+</td>
+
+<td>
+<div class="materia bloqueada">Herramientas Ps. Clínica (5)</div>
+<div class="materia bloqueada">Métodos Cuantitativos (5)</div>
+<div class="materia bloqueada">Herramientas Ps. Social (5)</div>
+</td>
+
+<td>
+<div class="materia bloqueada">Clínica II (5)</div>
+</td>
+
+<td>
+<div class="materia bloqueada">Dispositivos Psicoterapéuticos (5)</div>
+</td>
+
+<td>
+<div class="materia bloqueada">Optativas Metodológicas (5)</div>
+<div class="materia bloqueada">Idioma (5)</div>
+</td>
+
+<td>
+<div class="materia bloqueada">Optativas Metodológicas (5)</div>
+</td>
+
+<td class="creditos-col">60</td>
+</tr>
+
+<!-- MODULO PRACTICAS -->
+<tr>
+<td class="modulo">Módulo Prácticas y Proyectos</td>
+
+<td></td>
+<td>
+<div class="materia">Entrevista Psicológica (5)</div>
+</td>
+
+<td></td>
+
+<td>
+<div class="materia bloqueada">Diseño de Proyectos (5)</div>
+</td>
+
+<td colspan="2">
+<div class="materia bloqueada">Proyectos (10)</div>
+<div class="materia bloqueada">Práctica Formación Integral (10)</div>
+</td>
+
+<td colspan="2">
+<div class="materia bloqueada">Proyectos (10)</div>
+<div class="materia bloqueada">Práctica de Graduación (20)</div>
+</td>
+
+<td class="creditos-col">50</td>
+</tr>
+
+<!-- MODULO ARTICULACION -->
+<tr>
+<td class="modulo">Módulo Articulación de Saberes</td>
+
+<td>
+<div class="materia">Articulación I (5)</div>
+</td>
+
+<td>
+<div class="materia">Articulación II (5)</div>
+</td>
+
+<td>
+<div class="materia">Articulación III (5)</div>
+</td>
+
+<td>
+<div class="materia bloqueada">Articulación IV (5)</div>
+</td>
+
+<td>
+<div class="materia bloqueada">Articulación V (5)</div>
+</td>
+
+<td>
+<div class="materia bloqueada">Articulación VI (5)</div>
+</td>
+
+<td>
+<div class="materia bloqueada">Optativas AS (5)</div>
+</td>
+
+<td>
+<div class="materia bloqueada">Optativas AS (5)</div>
+</td>
+
+<td class="creditos-col">40</td>
+</tr>
+
+<!-- MODULO REFERENCIAL -->
+<tr>
+<td class="modulo">Módulo Referencial</td>
+
+<td>
+<div class="materia">Inicio a la Formación (5)</div>
+</td>
+
+<td>
+<div class="materia">Formación Integral (5)</div>
+</td>
+
+<td></td>
+<td></td>
+
+<td colspan="2">
+<div class="materia bloqueada">Construcción de Itinerario (5)</div>
+</td>
+
+<td colspan="2">
+<div class="materia bloqueada">Referencial de Egreso (5)</div>
+</td>
+
+<td class="creditos-col">20</td>
+</tr>
+
+<!-- SIN MODULO -->
+<tr>
+<td class="modulo"></td>
+<td colspan="8">
+<div class="materia">Cooperación Institucional / Optativa (5)</div>
+</td>
+<td class="creditos-col">5</td>
+</tr>
+
+<!-- TOTAL -->
+<tr>
+<td class="modulo"><strong>Total</strong></td>
+<td colspan="8"></td>
+<td class="creditos-col"><strong>320</strong></td>
+</tr>
+
+</table>
 
 </body>
 </html>
