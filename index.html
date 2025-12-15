@@ -1,197 +1,432 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<title>Malla Psicología UdelaR</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<style>
-:root{
-  --rosa:#f6c1d1;
-  --rosa-claro:#fde7ef;
-  --gris:#cfcfd4;
-  --gris-osc:#b5b5bb;
-  --texto:#333;
-}
-body{
-  margin:0;
-  padding:16px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background:#faf7f9;
-  color:var(--texto);
-}
-h1{
-  text-align:center;
-  margin-bottom:24px;
-}
-.malla{
-  display:grid;
-  grid-template-columns: 220px repeat(9, minmax(180px,1fr));
-  gap:8px;
-}
-.header{
-  background:var(--rosa);
-  border-radius:12px;
-  padding:8px;
-  text-align:center;
-  font-weight:600;
-}
-.ciclo{
-  grid-column: span 2;
-}
-.semestre{
-  background:var(--rosa-claro);
-  border-radius:12px;
-  padding:6px;
-  text-align:center;
-  font-weight:500;
-}
-.modulo{
-  font-weight:600;
-  padding:8px;
-}
-.materia{
-  background:var(--rosa);
-  border-radius:12px;
-  padding:8px;
-  font-size:14px;
-  cursor:pointer;
-  transition:0.2s;
-}
-.materia small{display:block; font-size:12px; opacity:0.8;}
-.bloqueada{
-  background:var(--gris);
-  cursor:not-allowed;
-}
-.aprobada{
-  background:var(--gris-osc);
-  text-decoration: line-through;
-}
-.creditos{
-  background:#fff;
-  border-radius:12px;
-  padding:8px;
-  font-size:14px;
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Malla Psicología - Interactiva (versión local)</title>
+  <style>
+    :root{
+      --pink: #f7d6e0; /* pastel rosa */
+      --pink-strong: #efb6cf;
+      --gray-block: #a9a9a9; /* gris claro medio-oscuro */
+      --bg: #fffafc;
+      --text: #222;
+      --muted: #666;
+      --cell-padding: 6px;
+      --module-width: 210px;
+      --totals-width: 170px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      font-size: 12px;
+    }
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1400px;margin:12px auto;padding:12px;box-sizing:border-box}
+    h1{margin:6px 0 4px;font-size:18px;text-align:center}
+    p.lead{margin:0 0 12px;text-align:center;color:var(--muted)}
+
+    /* tabla tipo malla */
+    .malla {display:grid;grid-template-columns: var(--module-width) repeat(8, 1fr) var(--totals-width);gap:6px;align-items:start;}
+
+    /* encabezados de ciclo (span 2 columnas) */
+    .cycle{background:#fdeef6;border-radius:8px;padding:8px;text-align:center;font-weight:700}
+    .cycle.full{background:linear-gradient(90deg,#fdeef6, #fbe7f0)}
+
+    .semester{background:#fff;border-radius:6px;padding:6px;text-align:center;font-weight:700;border:1px solid #f0dbe2}
+
+    .module-name{background:transparent;padding:8px 6px;font-weight:700;color:var(--muted);display:flex;align-items:center;height:32px}
+
+    .cell{background:transparent;padding:4px;min-height:40px}
+    .cell .materia{display:block;margin:4px 0;padding:6px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .materia.locked{background:#efefef;color:var(--muted);border-color:#e0e0e0;cursor:not-allowed}
+    .materia.available{background:var(--pink);border-color:var(--pink-strong)}
+    .materia.approved{background:var(--gray-block);border-color:var(--gray-block);text-decoration:line-through;color:#333}
+
+    /* module rows labels vertical center */
+    .module-label{display:flex;align-items:center;height:100%;padding-left:6px}
+
+    /* totals column */
+    .totals{background:#fff;border-radius:8px;padding:8px;border:1px solid #f0dbe2}
+    .totals h3{margin:4px 0;font-size:13px}
+    .totals .line{font-size:12px;margin:6px 0;color:var(--muted)}
+
+    /* compact adjustments so everything fits on one page */
+    body{overscroll-behavior:none}
+    .malla{font-size:12px}
+    .materia{font-size:12px;padding:5px}
+
+    /* small screens: scale down to fit width */
+    @media (max-width:1200px){
+      .wrap{padding:8px}
+      :root{--module-width:170px;--totals-width:140px}
+    }
+  </style>
 </head>
 <body>
+  <div class="wrap">
+    <h1>Malla Curricular - Facultad de Psicología (Plan 2013)</h1>
+    <p class="lead">Toca una materia para marcarla como aprobada. Las materias bloqueadas aparecen en gris. Las materias aprobadas quedan tachadas y en gris. Los créditos por módulo se suman a la derecha.</p>
 
-<h1>Malla Curricular – Psicología UdelaR (Plan 2013)</h1>
+    <div class="malla" id="malla">
+      <!-- Row 0: ciclo headers (module column empty) -->
+      <div style="grid-column:1/2"></div>
+      <div class="cycle" style="grid-column:2/4">Ciclo Inicial</div>
+      <div class="cycle" style="grid-column:4/6">Ciclo Inicial</div>
+      <div class="cycle" style="grid-column:6/10">Ciclo de Formación Integral</div>
+      <div class="cycle" style="grid-column:10/12">Ciclo de Graduación</div>
+      <div style="grid-column:12/13"></div>
 
-<div class="malla">
+      <!-- Row 1: semester headers -->
+      <div class="module-name">Módulos / Semestres</div>
+      <div class="semester">1er semestre</div>
+      <div class="semester">2do semestre</div>
+      <div class="semester">3er semestre</div>
+      <div class="semester">4to semestre</div>
+      <div class="semester">5to semestre</div>
+      <div class="semester">6to semestre</div>
+      <div class="semester">7mo semestre</div>
+      <div class="semester">8vo semestre</div>
+      <div class="semester">&nbsp;</div>
 
-<div></div>
-<div class="header ciclo">Ciclo Inicial</div>
-<div class="header ciclo">Ciclo Formación Integral</div>
-<div class="header ciclo">Ciclo Formación Integral</div>
-<div class="header ciclo">Ciclo de Graduación</div>
-<div class="header">Créditos</div>
+      <!-- Module: Módulo de Psicología row -->
+      <div class="module-label">Módulo de Psicología</div>
+      <div class="cell" id="cell_historia"></div>
+      <div class="cell" id="cell_psicodesarrollo"></div>
+      <div class="cell" id="cell_psicosocial"></div>
+      <div class="cell" id="cell_clinicaI"></div>
+      <div class="cell" id="cell_psicopatologia_nyad"></div>
+      <div class="cell" id="cell_problematicas"></div>
+      <div class="cell" id="cell_opt_psico7"></div>
+      <div class="cell" id="cell_opt_psico8"></div>
+      <div class="totals" id="totals_psic">
+        <h3>Módulo Psicología</h3>
+        <div class="line" id="sum_psic">0 / 145 créditos</div>
+      </div>
 
-<div></div>
-<div class="semestre">1° Semestre</div>
-<div class="semestre">2° Semestre</div>
-<div class="semestre">3° Semestre</div>
-<div class="semestre">4° Semestre</div>
-<div class="semestre">5° Semestre</div>
-<div class="semestre">6° Semestre</div>
-<div class="semestre">7° Semestre</div>
-<div class="semestre">8° Semestre</div>
-<div class="semestre">Totales</div>
+      <!-- Module: Módulo Metodológico row -->
+      <div class="module-label">Módulo Metodológico</div>
+      <div class="cell" id="cell_neurobio"></div>
+      <div class="cell" id="cell_procesoscognitivos"></div>
+      <div class="cell" id="cell_etica"></div>
+      <div class="cell" id="cell_herr_clinica"></div>
+      <div class="cell" id="cell_clinicaII"></div>
+      <div class="cell" id="cell_dispositivos"></div>
+      <div class="cell" id="cell_opt_met7"></div>
+      <div class="cell" id="cell_opt_met8"></div>
+      <div class="totals" id="totals_met">
+        <h3>Módulo Metodológico</h3>
+        <div class="line" id="sum_met">0 / 60 créditos</div>
+      </div>
 
-<div class="modulo">Módulo de Psicología</div>
-<div class="materia" data-creditos="10">Historia de la Psicología<small>10 créditos</small></div>
-<div class="materia" data-creditos="10">Psicología del Desarrollo<small>10 créditos</small></div>
-<div class="materia" data-creditos="10">Psicología Social<small>10 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Clínica I<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Psicopatología Niños y Adolescentes<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Problemáticas Contemporáneas PS<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Optativa Psicología<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="40">Trabajo Final<small>40 créditos</small></div>
-<div class="creditos" id="cred-psi">0 / 145</div>
+      <!-- Module: Módulo Prácticas y Proyectos row -->
+      <div class="module-label">Módulo Prácticas y Proyectos</div>
+      <div class="cell" id="cell_empty_pp1"> </div>
+      <div class="cell" id="cell_entrevista"></div>
+      <div class="cell" id="cell_empty_pp3"></div>
+      <div class="cell" id="cell_diseno_proyecto"></div>
+      <div class="cell" id="cell_proyectos_5"></div>
+      <div class="cell" id="cell_proyectos_6"></div>
+      <div class="cell" id="cell_proyectos_7"></div>
+      <div class="cell" id="cell_proyectos_8"></div>
+      <div class="totals" id="totals_pp">
+        <h3>Módulo Prácticas y Proyectos</h3>
+        <div class="line" id="sum_pp">0 / 50 créditos</div>
+      </div>
 
-<div class="modulo">Módulo Metodológico</div>
-<div class="materia" data-creditos="5">Epistemología<small>5 créditos</small></div>
-<div class="materia" data-creditos="5">Metodología Gral Investigación<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="3">Ética y Deontología<small>3 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Métodos Cuantitativos<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Clínica II<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Dispositivos Psicoterapéuticos<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Optativa Metodológica<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Optativa Metodológica<small>5 créditos</small></div>
-<div class="creditos" id="cred-met">0 / 60</div>
+      <!-- Module: Módulo Articulación de Saberes row -->
+      <div class="module-label">Módulo Articulación de Saberes</div>
+      <div class="cell" id="cell_art1"></div>
+      <div class="cell" id="cell_art2"></div>
+      <div class="cell" id="cell_art3"></div>
+      <div class="cell" id="cell_art4"></div>
+      <div class="cell" id="cell_art5"></div>
+      <div class="cell" id="cell_art6"></div>
+      <div class="cell" id="cell_art_opt7"></div>
+      <div class="cell" id="cell_art_opt8"></div>
+      <div class="totals" id="totals_art">
+        <h3>Módulo Articulación</h3>
+        <div class="line" id="sum_art">0 / 40 créditos</div>
+      </div>
 
-<div class="modulo">Módulo Prácticas y Proyectos</div>
-<div></div>
-<div class="materia" data-creditos="5">Entrevista Psicológica<small>5 créditos</small></div>
-<div></div>
-<div class="materia bloqueada" data-creditos="5">Diseño de Proyectos<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="10">Proyectos<small>10 créditos</small></div>
-<div class="materia bloqueada" data-creditos="10">Práctica Ciclo Integral<small>10 créditos</small></div>
-<div class="materia bloqueada" data-creditos="10">Proyectos<small>10 créditos</small></div>
-<div class="materia bloqueada" data-creditos="20">Práctica de Graduación<small>20 créditos</small></div>
-<div class="creditos" id="cred-prac">0 / 50</div>
+      <!-- Module: Módulo Referencial row -->
+      <div class="module-label">Módulo Referencial</div>
+      <div class="cell" id="cell_inicioform"></div>
+      <div class="cell" id="cell_formacion_integral"></div>
+      <div class="cell" id="cell_empty_ref3"></div>
+      <div class="cell" id="cell_empty_ref4"></div>
+      <div class="cell" id="cell_construccion_itinerario5"></div>
+      <div class="cell" id="cell_construccion_itinerario6"></div>
+      <div class="cell" id="cell_referencial7"></div>
+      <div class="cell" id="cell_referencial8"></div>
+      <div class="totals" id="totals_ref">
+        <h3>Módulo Referencial</h3>
+        <div class="line" id="sum_ref">0 / 20 créditos</div>
+      </div>
 
-<div class="modulo">Módulo Articulación de Saberes</div>
-<div class="materia" data-creditos="5">Articulación I<small>5 créditos</small></div>
-<div class="materia" data-creditos="5">Articulación II<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Articulación III<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Articulación IV<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Articulación V<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Articulación VI<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Optativa AS<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Optativa AS<small>5 créditos</small></div>
-<div class="creditos" id="cred-as">0 / 40</div>
+      <!-- Module: Sin módulo (no mostrar nombre) -->
+      <div class="module-label">&nbsp;</div>
+      <div class="cell" id="cell_cooperacion"></div>
+      <div class="cell" id="cell_empty_sm2"></div>
+      <div class="cell" id="cell_empty_sm3"></div>
+      <div class="cell" id="cell_empty_sm4"></div>
+      <div class="cell" id="cell_empty_sm5"></div>
+      <div class="cell" id="cell_empty_sm6"></div>
+      <div class="cell" id="cell_empty_sm7"></div>
+      <div class="cell" id="cell_empty_sm8"></div>
+      <div class="totals" id="totals_sm">
+        <h3>Sin módulo</h3>
+        <div class="line" id="sum_sm">0 / 5 créditos</div>
+      </div>
 
-<div class="modulo">Módulo Referencial</div>
-<div class="materia" data-creditos="5">Inicio a la Formación<small>5 créditos</small></div>
-<div class="materia" data-creditos="5">Formación Integral<small>5 créditos</small></div>
-<div></div>
-<div></div>
-<div class="materia bloqueada" data-creditos="5">Construcción de Itinerario<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Construcción de Itinerario<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Referencial de Egreso<small>5 créditos</small></div>
-<div class="materia bloqueada" data-creditos="5">Referencial de Egreso<small>5 créditos</small></div>
-<div class="creditos" id="cred-ref">0 / 20</div>
+      <!-- Final overall totals row (spans) -->
+      <div style="grid-column:1/13"></div>
+      <div class="totals" style="grid-column:13/14; margin-top:6px">
+        <h3>Créditos Totales</h3>
+        <div class="line" id="sum_total">0 / 320 créditos</div>
+        <div style="font-size:11px;margin-top:8px;color:var(--muted)">Suma por módulo a la izquierda. Las materias desbloquean/ bloquean según créditos y requisitos.</div>
+      </div>
 
-<div class="modulo"></div>
-<div class="materia" data-creditos="5">Cooperación Institucional<small>5 créditos</small></div>
-<div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-<div class="creditos" id="cred-sin">0 / 5</div>
+    </div>
+  </div>
 
-</div>
+  <script>
+    // Datos de materias: id, nombre, creditos, modulo, semestres (1-8), prereqs (array of ids)
+    const materias = [
+      // 1er semestre
+      {id:'hist_psic',name:'Historia de la Psicología',credits:10,module:'psic',sems:[1],prereqs:[]},
+      {id:'neurobiologia',name:'Neurobiología de la Mente',credits:5,module:'met',sems:[1],prereqs:[]},
+      {id:'fund_psic',name:'Fundamentos de la Psicología',credits:5,module:'psic',sems:[1],prereqs:[]},
+      {id:'epistemologia',name:'Epistemología',credits:5,module:'met',sems:[1],prereqs:[]},
+      {id:'herr_trabajo',name:'Herramientas para el Trabajo Intelectual',credits:5,module:'met',sems:[1],prereqs:[]},
+      {id:'art1',name:'Articulación de Saberes I',credits:5,module:'art',sems:[1],prereqs:[]},
+      {id:'inicio_form',name:'Inicio a la Formación en Psicología',credits:5,module:'ref',sems:[1],prereqs:[]},
+      // 2do semestre
+      {id:'psic_desarrollo',name:'Psicología del Desarrollo',credits:10,module:'psic',sems:[2],prereqs:[]},
+      {id:'procesos_cogn',name:'Procesos Cognitivos',credits:5,module:'psic',sems:[2],prereqs:[]},
+      {id:'teorias_psic',name:'Teorías Psicológicas',credits:5,module:'psic',sems:[2],prereqs:[]},
+      {id:'methods_ext',name:'Métodos y herramientas orientadas a la extensión',credits:2,module:'met',sems:[2],prereqs:[]},
+      {id:'metodologia_gen',name:'Metodología General de la Investigación',credits:5,module:'met',sems:[2],prereqs:[]},
+      {id:'entrevista',name:'Entrevista Psicológica',credits:5,module:'pp',sems:[2],prereqs:[]},
+      {id:'art2',name:'Articulación de Saberes II',credits:5,module:'art',sems:[2],prereqs:[]},
+      {id:'formacion_integral',name:'Formación Integral',credits:5,module:'ref',sems:[2],prereqs:[]},
+      // 3er semestre (subject to credit-based unlock rule)
+      {id:'psic_social',name:'Psicología Social',credits:10,module:'psic',sems:[3],prereqs:[]},
+      {id:'psic_suj_apr',name:'Psicología, Sujeto y Aprendizaje',credits:5,module:'psic',sems:[3],prereqs:[]},
+      {id:'etica',name:'Ética y Deontología',credits:3,module:'met',sems:[3],prereqs:[]},
+      {id:'metod_cual',name:'Métodos y Técnicas cualitativa',credits:5,module:'met',sems:[3],prereqs:[]},
+      {id:'art3',name:'Articulación de Saberes III',credits:5,module:'art',sems:[3],prereqs:[]},
+      // 4to semestre (UCOs with prerequisites)
+      {id:'clinicaI',name:'Clínica I: Fundamentos psicoanalíticos',credits:5,module:'psic',sems:[4],prereqs:['art3','teorias_psic','fund_psic','etica','epistemologia']},
+      {id:'psic_salud',name:'Psicología y Salud',credits:10,module:'psic',sems:[4],prereqs:['psic_desarrollo','fund_psic','art2']},
+      {id:'herr_clinica',name:'Herramientas de la Psicología Clínica',credits:5,module:'met',sems:[4],prereqs:['entrevista','inicio_form','art3','teorias_psic','fund_psic']},
+      {id:'metod_cuant',name:'Métodos y Técnicas cuantitativa',credits:5,module:'met',sems:[4],prereqs:[]},
+      {id:'herr_psicosocial',name:'Herramientas de la Psicología Social',credits:5,module:'met',sems:[4],prereqs:['psic_social','teorias_psic','fund_psic','art1']},
+      {id:'diseno_proy',name:'Diseño de Proyectos',credits:5,module:'pp',sems:[4],prereqs:['metodologia_gen','epistemologia','metod_cuant']},
+      {id:'art4',name:'Articulación de Saberes IV',credits:5,module:'art',sems:[4],prereqs:['psic_social','art1','teorias_psic','fund_psic','art2']},
+      // 5to semestre
+      {id:'psicopat_ninos',name:'Psicopatología de niños y adolescentes',credits:5,module:'psic',sems:[5],prereqs:['entrevista','inicio_form','clinicaI','art3','teorias_psic','fund_psic']},
+      {id:'psicopat_adultos',name:'Psicopatología de adultos',credits:5,module:'psic',sems:[5],prereqs:['entrevista','inicio_form','clinicaI','art3','teorias_psic','fund_psic']},
+      {id:'neuropsicologia',name:'Neuropsicología',credits:5,module:'psic',sems:[5],prereqs:['procesos_cogn','neurobiologia']},
+      {id:'clinicaII',name:'Clínica II: Teorías y Técnicas de las Intervenciones',credits:5,module:'met',sems:[5],prereqs:['herr_clinica','entrevista','inicio_form','clinicaI','art3','teorias_psic','fund_psic']},
+      {id:'proyectos_5',name:'Proyectos (5to)',credits:10,module:'pp',sems:[5],prereqs:['design_optional_flag']},
+      {id:'practica_integral_5',name:'Práctica de Ciclo Formación Integral (puede 5to o 6to)',credits:10,module:'pp',sems:[5],prereqs:['ciclo_inicial_complete']},
+      {id:'art5',name:'Articulación de Saberes V',credits:5,module:'art',sems:[5],prereqs:['herr_psicosocial','psic_social','teorias_psic','fund_psic','art1','art4','art2']},
+      {id:'constr_itin_5',name:'Construcción de itinerario',credits:5,module:'ref',sems:[5],prereqs:['psic_social','art1','teorias_psic','fund_psic','psic_suj_apr','procesos_cogn','neurobiologia','psic_desarrollo','clinicaI','art3','etica','epistemologia','psic_salud','art2']},
+      // 6to semestre
+      {id:'prob_contmp',name:'Problemáticas contemporáneas de la psicología Social',credits:5,module:'psic',sems:[6],prereqs:['psic_social','art1','teorias_psic','fund_psic','art5','art4','art2']},
+      {id:'psic_y_educ',name:'Psicología y Educación',credits:5,module:'psic',sems:[6],prereqs:['psic_suj_apr','procesos_cogn','neurobiologia','psic_desarrollo','fund_psic']},
+      {id:'dispositivos_psic',name:'Dispositivos Psicoterapéuticos',credits:5,module:'met',sems:[6],prereqs:['clinicaII','herr_clinica','entrevista','inicio_form','clinicaI','art3','teorias_psic','fund_psic','etica','epistemologia']},
+      {id:'proyectos_6',name:'Proyectos (6to)',credits:10,module:'pp',sems:[6],prereqs:['ciclo_inicial_complete','diseno_proy']},
+      {id:'practica_integral_6',name:'Práctica de Ciclo Formación Integral (puede 5to o 6to)',credits:10,module:'pp',sems:[6],prereqs:['ciclo_inicial_complete','etica','psic_salud','psic_suj_apr','clinicaI','art3','herr_clinica','herr_psicosocial','psic_social']},
+      {id:'art6',name:'Articulación de Saberes VI',credits:5,module:'art',sems:[6],prereqs:['art1','art2','art3','teorias_psic','fund_psic']},
+      {id:'constr_itin_6',name:'Construcción de itinerario (6to alternativa)',credits:5,module:'ref',sems:[6],prereqs:['psic_social','art1','teorias_psic','fund_psic','psic_suj_apr','procesos_cogn','neurobiologia','psic_desarrollo','clinicaI','art3','etica','epistemologia','psic_salud','art2']},
+      // 7mo semestre
+      {id:'opt_psico_7',name:'Optativas (psicología) 7mo',credits:5,module:'psic',sems:[7],prereqs:['ciclo_inicial_complete','etica']},
+      {id:'opt_met_7',name:'Optativas (metodológico) 7mo',credits:5,module:'met',sems:[7],prereqs:['ciclo_inicial_complete','etica']},
+      {id:'idioma_7',name:'Idioma: Inglés o Portugués',credits:5,module:'met',sems:[7],prereqs:['ciclo_inicial_complete']},
+      {id:'proyectos_7',name:'Proyectos (7mo)',credits:10,module:'pp',sems:[7],prereqs:['design_optional_flag']},
+      {id:'practica_grad_7',name:'Práctica de Graduación (puede 7mo u 8vo)',credits:20,module:'pp',sems:[7],prereqs:['practica_integral_5']},
+      {id:'art_opt_7',name:'Optativas (Articulación) 7mo',credits:5,module:'art',sems:[7],prereqs:['ciclo_inicial_complete','etica']},
+      {id:'refer_egreso_7',name:'Referencial de egreso (7mo)',credits:5,module:'ref',sems:[7],prereqs:['ciclo_inicial_complete','ciclo_integral_complete','pp_20credits']},
+      // 8vo semestre
+      {id:'opt_psico_8',name:'Optativas (psicología) 8vo',credits:5,module:'psic',sems:[8],prereqs:['ciclo_inicial_complete']},
+      {id:'trabajo_final',name:'Trabajo final (40 cred)',credits:40,module:'psic',sems:[8],prereqs:['ciclo_inicial_complete','ciclo_integral_complete','pp_20credits']},
+      {id:'opt_met_8',name:'Optativas (metodológico) 8vo',credits:5,module:'met',sems:[8],prereqs:['ciclo_inicial_complete']},
+      {id:'proyectos_8',name:'Proyectos (8vo)',credits:10,module:'pp',sems:[8],prereqs:['design_optional_flag']},
+      {id:'practica_grad_8',name:'Práctica de Graduación (puede 7mo u 8vo)',credits:20,module:'pp',sems:[8],prereqs:['practica_integral_5']},
+      {id:'art_opt_8',name:'Optativas (Articulación) 8vo',credits:5,module:'art',sems:[8],prereqs:['ciclo_inicial_complete']},
+      {id:'refer_egreso_8',name:'Referencial de egreso (8vo)',credits:5,module:'ref',sems:[8],prereqs:['ciclo_inicial_complete','ciclo_integral_complete','pp_20credits']},
+      // Sin módulo
+      {id:'cooperacion',name:'Cooperación Institucional (u optativa)',credits:5,module:'sin',sems:[1],prereqs:[]}
+    ];
 
-<script>
-const materias = document.querySelectorAll('.materia');
+    // target credits per module
+    const moduleTargets = {psic:145,met:60,pp:50,art:40,ref:20,sin:5};
 
-materias.forEach(m => {
-  m.addEventListener('click', () => {
-    if(m.classList.contains('bloqueada')) return;
-    m.classList.toggle('aprobada');
-    actualizarCreditos();
-  });
-});
+    // helper maps
+    const byId = {};
+    materias.forEach(m=>byId[m.id]=m);
 
-function actualizarCreditos(){
-  let psi=0, met=0, prac=0, as=0, ref=0, sin=0;
-  document.querySelectorAll('.aprobada').forEach(m=>{
-    const c = Number(m.dataset.creditos);
-    const fila = m.parentElement.children;
-    const modulo = fila[0]?.innerText || '';
-    if(modulo.includes('Psicología')) psi+=c;
-    else if(modulo.includes('Metodológico')) met+=c;
-    else if(modulo.includes('Prácticas')) prac+=c;
-    else if(modulo.includes('Articulación')) as+=c;
-    else if(modulo.includes('Referencial')) ref+=c;
-    else sin+=c;
-  });
-  document.getElementById('cred-psi').innerText = psi+' / 145';
-  document.getElementById('cred-met').innerText = met+' / 60';
-  document.getElementById('cred-prac').innerText = prac+' / 50';
-  document.getElementById('cred-as').innerText = as+' / 40';
-  document.getElementById('cred-ref').innerText = ref+' / 20';
-  document.getElementById('cred-sin').innerText = sin+' / 5';
-}
-</script>
+    // load state from localStorage
+    const state = JSON.parse(localStorage.getItem('malla_state_v1')||'{}'); // ids->true
 
+    // render materias into cells
+    function renderGrid(){
+      materias.forEach(m=>{
+        const cellId = 'cell_'+m.id;
+        // decide which cell to put in: first semester in sems array
+        const sem = m.sems[0];
+        // We placed many specific cell ids in HTML; if not found, fall back to generic
+        const mapping = {
+          'hist_psic':'cell_historia','neurobiologia':'cell_neurobio','fund_psic':'cell_historia','epistemologia':'cell_neurobio',
+          'herr_trabajo':'cell_neurobio','art1':'cell_art1','inicio_form':'cell_inicioform','psic_desarrollo':'cell_psicodesarrollo','procesos_cogn':'cell_procesoscognitivos','teorias_psic':'cell_psicodesarrollo','methods_ext':'cell_procesoscognitivos','metodologia_gen':'cell_procesoscognitivos','entrevista':'cell_entrevista','art2':'cell_art2','formacion_integral':'cell_formacion_integral','psic_social':'cell_psicosocial','psic_suj_apr':'cell_psicosocial','etica':'cell_etica','metod_cual':'cell_etica','art3':'cell_art3','clinicaI':'cell_clinicaI','psic_salud':'cell_clinicaI','herr_clinica':'cell_herr_clinica','metod_cuant':'cell_herr_clinica','herr_psicosocial':'cell_herr_clinica','diseno_proy':'cell_diseno_proyecto','art4':'cell_art4','psicopat_ninos':'cell_psicopatologia_nyad','psicopat_adultos':'cell_psicopatologia_nyad','neuropsicologia':'cell_psicopatologia_nyad','clinicaII':'cell_clinicaII','proyectos_5':'cell_proyectos_5','practica_integral_5':'cell_proyectos_5','art5':'cell_art5','constr_itin_5':'cell_construccion_itinerario5','prob_contmp':'cell_problematicas','psic_y_educ':'cell_problematicas','dispositivos_psic':'cell_dispositivos','proyectos_6':'cell_proyectos_6','practica_integral_6':'cell_proyectos_6','art6':'cell_art6','constr_itin_6':'cell_construccion_itinerario6','opt_psico_7':'cell_opt_psico7','opt_met_7':'cell_opt_met7','idioma_7':'cell_opt_met7','proyectos_7':'cell_proyectos_7','practica_grad_7':'cell_proyectos_7','art_opt_7':'cell_art_opt7','refer_egreso_7':'cell_referencial7','opt_psico_8':'cell_opt_psico8','trabajo_final':'cell_referencial8','opt_met_8':'cell_opt_met8','proyectos_8':'cell_proyectos_8','practica_grad_8':'cell_proyectos_8','art_opt_8':'cell_art_opt8','refer_egreso_8':'cell_referencial8','cooperacion':'cell_cooperacion'
+        };
+        const containerId = mapping[m.id] || ('cell_generic_'+m.id);
+        let container = document.getElementById(containerId);
+        if(!container){
+          // create a generic cell if missing
+          container = document.createElement('div');
+          container.className='cell';
+          container.id = containerId;
+          document.getElementById('malla').appendChild(container);
+        }
+        // create materia element
+        const el = document.createElement('div');
+        el.className='materia';
+        el.dataset.id = m.id;
+        el.title = m.name + ' — ' + m.credits + ' créditos';
+        el.innerText = m.name + ' ('+m.credits+' cred)';
+        el.onclick = ()=>toggleMateria(m.id);
+        container.appendChild(el);
+      });
+    }
+
+    // toggle materia approved/unapproved (only if available or approved currently)
+    function toggleMateria(id){
+      const el = document.querySelector(`.materia[data-id="${id}"]`);
+      const m = byId[id];
+      if(!el) return;
+      const isApproved = !!state[id];
+      const isLocked = el.classList.contains('locked') && !isApproved;
+      if(isLocked) return; // can't toggle locked ones
+      if(isApproved){
+        delete state[id];
+      } else {
+        state[id]=true;
+      }
+      saveState();
+      updateUI();
+    }
+
+    function saveState(){
+      localStorage.setItem('malla_state_v1', JSON.stringify(state));
+    }
+
+    // compute sums per module and per other conditions
+    function computeSums(){
+      const sums = {psic:0,met:0,pp:0,art:0,ref:0,sin:0,total:0};
+      Object.keys(state).forEach(id=>{
+        if(state[id]){
+          const m = byId[id];
+          if(!m) return;
+          sums[m.module] = (sums[m.module]||0) + m.credits;
+          sums.total += m.credits;
+        }
+      });
+      return sums;
+    }
+
+    // helper checks
+    function cicloInicialComplete(){
+      // simple: check that all materias in sem 1 and 2 are approved
+      return materias.filter(m=>m.sems[0]<=2).every(m=>!!state[m.id]);
+    }
+    function cicloIntegralComplete(){
+      // simple: check that sems 3-6 all approved
+      return materias.filter(m=>m.sems[0]>=3 && m.sems[0]<=6).every(m=>!!state[m.id]);
+    }
+    function pp20credits(){
+      const sums = computeSums();
+      return sums.pp >= 20;
+    }
+
+    function creditRuleForThird(){
+      // para cursar 3er semestre: 45 créditos distribuidos: 20 psic, 10 met, 5 art, 5 ref, 5 otros
+      const sums = computeSums();
+      const cond = (sums.psic>=20 && sums.met>=10 && sums.art>=5 && sums.ref>=5 && (sums.total>=45));
+      return cond;
+    }
+
+    // evaluate available/locked/approved states
+    function updateUI(){
+      // update module sums display
+      const sums = computeSums();
+      document.getElementById('sum_psic').innerText = sums.psic+' / '+moduleTargets.psic+' créditos';
+      document.getElementById('sum_met').innerText = sums.met+' / '+moduleTargets.met+' créditos';
+      document.getElementById('sum_pp').innerText = sums.pp+' / '+moduleTargets.pp+' créditos';
+      document.getElementById('sum_art').innerText = sums.art+' / '+moduleTargets.art+' créditos';
+      document.getElementById('sum_ref').innerText = sums.ref+' / '+moduleTargets.ref+' créditos';
+      document.getElementById('sum_sm').innerText = sums.sin+' / '+moduleTargets.sin+' créditos';
+      document.getElementById('sum_total').innerText = sums.total+' / 320 créditos';
+
+      // compute some global flags
+      const flagCicloInicial = cicloInicialComplete();
+      const flagCredit3 = creditRuleForThird();
+      const flagPP20 = pp20credits();
+      // iterate materia elements
+      document.querySelectorAll('.materia').forEach(el=>{
+        const id = el.dataset.id;
+        const m = byId[id];
+        const approved = !!state[id];
+        // base: locked if prereqs unmet
+        let locked = false;
+        // check prereqs
+        if(m.prereqs && m.prereqs.length){
+          for(const pre of m.prereqs){
+            // special flags
+            if(pre==='ciclo_inicial_complete'){ if(!flagCicloInicial){ locked=true; break; } else continue; }
+            if(pre==='ciclo_integral_complete'){ if(!flagCicloIntegral){ locked=true; break; } else continue; }
+            if(pre==='pp_20credits'){ if(!flagPP20){ locked=true; break; } else continue; }
+            if(pre==='design_optional_flag'){ /* allow for now: unlocked by default */ continue; }
+            // else prereq is a materia id
+            if(!state[pre]){ locked=true; break; }
+          }
+        }
+        // special: third semester credit rule blocks all sem3 materias until creditRuleForThird true
+        if(m.sems[0]===3 && !flagCredit3) locked = true;
+
+        // also block semesters higher than 3 until previous sem have been mostly achieved (simple heuristic)
+        if(m.sems[0]===4){
+          // require that at least the majority of sem 3 is approved OR that specific prereqs are met
+          const sem3 = materias.filter(x=>x.sems[0]===3);
+          const sem3ApprovedCount = sem3.filter(x=>state[x.id]).length;
+          if(sem3ApprovedCount < Math.max(1, Math.floor(sem3.length/2))){ locked = true; }
+        }
+        if(m.sems[0]>=5){
+          // require ciclo inicial completed and at least some sem4 approvals
+          const sem4 = materias.filter(x=>x.sems[0]===4);
+          const sem4ApprovedCount = sem4.filter(x=>state[x.id]).length;
+          if(!flagCicloInicial || sem4ApprovedCount < 1) locked = true;
+        }
+
+        // apply classes
+        el.classList.remove('locked','available','approved');
+        if(approved){ el.classList.add('approved'); }
+        else if(locked){ el.classList.add('locked'); }
+        else { el.classList.add('available'); }
+      });
+
+      // update flag for ciclo integral (used in prereqs) after UI update
+      window.flagCicloIntegral = cicloIntegralComplete();
+    }
+
+    // init
+    renderGrid();
+    updateUI();
+
+    // explain briefly in console
+    console.log('Malla cargada. Estado persistido en localStorage (clave malla_state_v1).');
+    console.log('Reglas implementadas: 1) Semestre 3 bloqueado hasta cumplir regla de créditos (20 psic, 10 met, 5 art, 5 ref, total 45). 2) Semestre 4 requiere progreso en semestre 3. 3) Semestres >=5 requieren al menos ciclo inicial aprobado y progreso en sem4. 4) Muchas materias con prerequisitos explícitos los tienen en la lista de datos (ej. Clínica I, Psicología y Salud, etc.).');
+
+  </script>
 </body>
 </html>
